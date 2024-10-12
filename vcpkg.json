@@ -1,0 +1,20 @@
+{
+    "dependencies": [
+        {
+            "name": "assimp"
+        },
+        {
+            "name": "directxtex"
+        },
+        {
+            "name": "directxtk"
+        },
+        {
+            "name": "imgui",
+            "features": [
+                "dx11-binding",
+                "win32-binding"
+            ]
+        }
+    ]
+}
