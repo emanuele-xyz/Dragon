@@ -63,4 +63,14 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="hlsl\include\Dragon\VSInput.hlsli" />
+    <None Include="hlsl\include\Dragon\VSOutput.hlsli" />
+    <None Include="hlsl\include\Dragon\CBCamera.hlsli" />
+    <None Include="hlsl\include\Dragon\CBObject.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="hlsl\src\DefaultVS.hlsl" />
+    <FxCompile Include="hlsl\src\UnlitPS.hlsl" />
+  </ItemGroup>
 </Project>
