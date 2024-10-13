@@ -101,7 +101,7 @@
   <ItemGroup>
     <ClCompile Include="src\Commons.cpp" />
     <ClCompile Include="src\D3D11Utils.cpp" />
-    <ClCompile Include="src\Dragon.cpp" />
+    <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\Gfx.cpp" />
     <ClCompile Include="src\ImGuiHandle.cpp" />
     <ClCompile Include="src\Main.cpp" />
@@ -114,7 +114,7 @@
   <ItemGroup>
     <ClInclude Include="include\Dragon\Commons.h" />
     <ClInclude Include="include\Dragon\D3D11Utils.h" />
-    <ClInclude Include="include\Dragon\Dragon.h" />
+    <ClInclude Include="include\Dragon\App.h" />
     <ClInclude Include="include\Dragon\Gfx.h" />
     <ClInclude Include="include\Dragon\ImGuiHandle.h" />
     <ClInclude Include="include\Dragon\pch.h" />

@@ -1,14 +1,15 @@
 #include <Dragon/pch.h>
 #include <Dragon/Win32Utils.h>
 #include <Dragon/Commons.h>
-#include <Dragon/Dragon.h>
+#include <Dragon/App.h>
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 {
     try
     {
         Dragon_Check(SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE));
-        Dragon::Run();
+        Dragon::App app{};
+        app.Run();
     }
     catch (const Dragon::Error& e)
     {
