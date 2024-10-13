@@ -10,6 +10,10 @@ namespace wrl = Microsoft::WRL;
 #include <vector>
 #include <span>
 
+#include <Dragon/Commons.h>
+
+#define Dragon_CheckHR(p) do { if (!SUCCEEDED(p)) { Dragon_Error("'" #p "' is not succeeded"); } } while (false)
+
 namespace Win32Utils
 {
     class WindowClass

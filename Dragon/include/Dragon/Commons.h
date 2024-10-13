@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdexcept>
+#include <string>
 
 #if defined(_DEBUG)
 #define Dragon_Error(message) __debugbreak()
@@ -9,6 +10,8 @@
 #endif
 
 #define Dragon_Check(p) do { if (!(p)) { Dragon_Error("predicate '" #p "' failed"); } } while (false)
+
+#define Dragon_CountOf(a) sizeof(a) / sizeof((a)[0])
 
 namespace Dragon
 {
@@ -19,4 +22,7 @@ namespace Dragon
             : std::runtime_error{ std::format("{}({}): in function '{}': {}", file, line, function, message) }
         {}
     };
+
+    std::string GetStrFromWStr(const std::wstring& wstr);
+    std::wstring GetWStrFromStr(const std::string& str);
 }
