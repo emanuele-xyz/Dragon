@@ -12,6 +12,7 @@
 #define Dragon_Check(p) do { if (!(p)) { Dragon_Error("predicate '" #p "' failed"); } } while (false)
 
 #define Dragon_CountOf(a) sizeof(a) / sizeof((a)[0])
+#define Dragon_Unreachable() Dragon_Error("Unreachable code path")
 
 namespace Dragon
 {
