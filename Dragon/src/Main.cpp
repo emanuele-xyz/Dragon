@@ -7,6 +7,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 {
     try
     {
+        Dragon_Check(SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE));
         Dragon::Run();
     }
     catch (const Dragon::Error& e)
