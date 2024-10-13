@@ -2,6 +2,10 @@
 #include <Dragon/Win32Utils.h>
 #include <Dragon/Commons.h>
 
+#include <imgui.h>
+// Forward declare message handler from imgui_impl_win32.cpp
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 namespace Win32Utils
 {
     LRESULT WindowClass::Procedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
@@ -51,8 +55,15 @@ namespace Win32Utils
     LRESULT WindowHandle::Procedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
     {
         LRESULT result{};
-        auto window{ reinterpret_cast<WindowHandle*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
-        result = window->OnMSG(hwnd, msg, wparam, lparam);
+        if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam))
+        {
+            result = 1;
+        }
+        else
+        {
+            auto window{ reinterpret_cast<WindowHandle*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
+            result = window->OnMSG(hwnd, msg, wparam, lparam);
+        }
         return result;
     }
 
@@ -83,11 +94,17 @@ namespace Win32Utils
         }
     }
 
-    std::tuple<int, int> WindowHandle::GetClientDimensions() const
+    std::tuple<int, int> WindowHandle::GetClientDimensionsInt() const
     {
         RECT client_rect{};
         Dragon_Check(GetClientRect(m_handle, &client_rect));
         return { client_rect.right - client_rect.left, client_rect.bottom - client_rect.top };
+    }
+
+    std::tuple<float, float> WindowHandle::GetClientDimensionsFloat() const
+    {
+        auto [w, h] { GetClientDimensionsInt() };
+        return { static_cast<float>(w), static_cast<float>(h) };
     }
 
     LRESULT WindowHandle::OnMSG(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)

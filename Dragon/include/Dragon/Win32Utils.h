@@ -50,7 +50,8 @@ namespace Win32Utils
         std::span<const MSG> GetMessages() { return m_messages; }
         void ClearMessages() { m_messages.clear(); }
         HWND GetRawHandle() const { return m_handle; }
-        std::tuple<int, int> GetClientDimensions() const;
+        std::tuple<int, int> GetClientDimensionsInt() const;
+        std::tuple<float, float> GetClientDimensionsFloat() const;
     private:
         LRESULT OnMSG(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
     private:

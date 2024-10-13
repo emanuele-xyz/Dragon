@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 # vcpkg install folder
 .vcpkg
+
+# renderdoc settings
+*.cap
