@@ -7,11 +7,12 @@ namespace Dragon
 {
     App::App()
         : m_is_running{ true }
-        , m_vsync{ false }
         , m_window_class{ "dragon_window_class" }
         , m_window{ m_window_class.GetName(), "Dragon", 1280, 720, WS_OVERLAPPEDWINDOW }
         , m_gfx{ m_window.GetRawHandle() }
         , m_imgui{ m_window.GetRawHandle(), m_gfx.GetDevice(), m_gfx.GetContext() }
+        , m_settings{}
+        , m_data{}
     {
     }
 
@@ -19,6 +20,8 @@ namespace Dragon
     {
         while (m_is_running)
         {
+            auto t0{ Win32Utils::GetPerformanceCounter() };
+
             m_window.ClearMessages();
             m_window.PumpMessages();
 
@@ -71,15 +74,31 @@ namespace Dragon
             // NOTE: render ui
             m_imgui.NewFrame();
             {
-                ImGui::Begin("Hello!");
+                ImGui::Begin("App Settings");
                 {
-                    ImGui::Text("Skibidi Toilet!");
+                    ImGui::Checkbox("V-Sync", &m_settings.vsync);
+                }
+                ImGui::End();
+
+                ImGui::Begin("App Data");
+                {
+                    ImGui::Text("time since start (sec): %.1f", m_data.time_since_start_sec);
+                    ImGui::Text("last frame dt (sec): %.6f", m_data.last_frame_dt_sec);
+                    ImGui::Text("last frame dt (msec): %.3f", m_data.last_frame_dt_msec);
+                    ImGui::Text("last fps: %.1f", m_data.last_fps);
                 }
                 ImGui::End();
             }
             m_imgui.Render();
 
-            m_gfx.Present(m_vsync);
+            m_gfx.Present(m_settings.vsync);
+
+            auto t1{ Win32Utils::GetPerformanceCounter() };
+
+            m_data.last_frame_dt_sec = Win32Utils::GetElapsedSec(t0, t1);
+            m_data.last_frame_dt_msec = m_data.last_frame_dt_sec * 1000.0f;
+            m_data.time_since_start_sec += m_data.last_frame_dt_sec;
+            m_data.last_fps = 1.0f / m_data.last_frame_dt_sec;
         }
     }
 }

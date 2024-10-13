@@ -16,6 +16,10 @@ namespace wrl = Microsoft::WRL;
 
 namespace Win32Utils
 {
+    LONGLONG GetPerformanceCounter();
+    LONGLONG GetPerformanceFrequency();
+    float GetElapsedSec(LONGLONG t0, LONGLONG t1);
+
     class WindowClass
     {
     public:

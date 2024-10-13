@@ -8,6 +8,27 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 namespace Win32Utils
 {
+    LONGLONG GetPerformanceCounter()
+    {
+        LARGE_INTEGER perf{};
+        Dragon_Check(QueryPerformanceCounter(&perf));
+        return perf.QuadPart;
+    }
+
+    LONGLONG GetPerformanceFrequency()
+    {
+        LARGE_INTEGER freq{};
+        Dragon_Check(QueryPerformanceFrequency(&freq));
+        return freq.QuadPart;
+    }
+
+    float GetElapsedSec(LONGLONG t0, LONGLONG t1)
+    {
+        static LONGLONG frequency{ GetPerformanceFrequency() };
+        float elapsed_sec{ static_cast<float>(t1 - t0) / static_cast<float>(frequency) };
+        return elapsed_sec;
+    }
+
     LRESULT WindowClass::Procedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
     {
         LRESULT result{};
