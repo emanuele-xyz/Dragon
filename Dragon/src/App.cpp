@@ -140,6 +140,7 @@ namespace Dragon
         GPUMesh cube_mesh{};
         {
             auto tmp{ CPUMesh::LoadFromFile("../../assets/cube.obj") };
+            auto uvs{ tmp.GetUVs() };
             cube_mesh = GPUMesh::FromCPUMesh(m_gfx.GetDevice(), tmp);
         }
 
@@ -179,38 +180,13 @@ namespace Dragon
                 auto [client_w, client_h] { m_window.GetClientDimensionsFloat() };
                 float aspect{ client_w / client_h };
 
-                auto rtv{ m_gfx.GetBackBufferRTV() };
-                auto dsv{ m_gfx.GetBackBufferDSV() };
-                float clear_color[4]{ 1.0f, 0.0f, 1.0f, 1.0f };
-                m_gfx.GetContext()->ClearRenderTargetView(rtv, clear_color);
-                m_gfx.GetContext()->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-                D3D11_VIEWPORT viewport{};
-                viewport.TopLeftX = 0.0f;
-                viewport.TopLeftY = 0.0f;
-                viewport.Width = client_w;
-                viewport.Height = client_h;
-                viewport.MinDepth = 0.0f;
-                viewport.MaxDepth = 1.0f;
-
-                m_gfx.GetContext()->RSSetViewports(1, &viewport);
-                m_gfx.GetContext()->RSSetState(rasterizer_state.Get());
-                m_gfx.GetContext()->OMSetRenderTargets(1, &rtv, dsv);
-                m_gfx.GetContext()->OMSetDepthStencilState(depth_stencil_state.Get(), 0);
-                m_gfx.GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-                m_gfx.GetContext()->IASetInputLayout(input_layout.Get());
-                m_gfx.GetContext()->VSSetShader(vs_default.Get(), nullptr, 0);
-                m_gfx.GetContext()->VSSetConstantBuffers(0, Dragon_CountOf(constant_buffers), constant_buffers);
-                m_gfx.GetContext()->PSSetConstantBuffers(0, Dragon_CountOf(constant_buffers), constant_buffers);
-                m_gfx.GetContext()->PSSetSamplers(0, 1, sampler_state.GetAddressOf());
-
                 // NOTE: update camera constants
                 // TODO: move to renderer
                 {
                     {
                         D3D11Utils::SubresourceMapping subres_mapping{ m_gfx.GetContext(), camera_constants.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0 };
                         auto constants{ static_cast<CBCamera*>(subres_mapping.GetSubresource().pData) };
-                        constants->view = Matrix::CreateLookAt({ 5.0f, 5.0f, 50.f }, Vector3::Zero, Vector3::Up);
+                        constants->view = Matrix::CreateLookAt({ 5.0f, 5.0f, 5.f }, Vector3::Zero, Vector3::Up);
                         constants->projection = Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(45.0f), aspect, 0.01f, 100.0f);
                     }
                 }
@@ -235,6 +211,40 @@ namespace Dragon
                         constants->normal = normal;
                     }
                 }
+
+                auto rtv{ m_gfx.GetBackBufferRTV() };
+                auto dsv{ m_gfx.GetBackBufferDSV() };
+                float clear_color[4]{ 1.0f, 0.0f, 1.0f, 1.0f };
+                m_gfx.GetContext()->ClearRenderTargetView(rtv, clear_color);
+                m_gfx.GetContext()->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+                D3D11_VIEWPORT viewport{};
+                viewport.TopLeftX = 0.0f;
+                viewport.TopLeftY = 0.0f;
+                viewport.Width = client_w;
+                viewport.Height = client_h;
+                viewport.MinDepth = 0.0f;
+                viewport.MaxDepth = 1.0f;
+
+                m_gfx.GetContext()->RSSetViewports(1, &viewport);
+                m_gfx.GetContext()->RSSetState(rasterizer_state.Get());
+                m_gfx.GetContext()->OMSetRenderTargets(1, &rtv, dsv);
+                m_gfx.GetContext()->OMSetDepthStencilState(depth_stencil_state.Get(), 0);
+                m_gfx.GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+                m_gfx.GetContext()->IASetIndexBuffer(cube_mesh.indices.Get(), DXGI_FORMAT_R32_UINT, 0);
+                m_gfx.GetContext()->IASetVertexBuffers(
+                    0, static_cast<UINT>(Mesh::VertexBufferIdx::Count),
+                    cube_mesh.vertex_buffer_pointers, cube_mesh.vertex_buffer_strides, cube_mesh.vertex_buffer_offsets
+                );
+                m_gfx.GetContext()->IASetInputLayout(input_layout.Get());
+                m_gfx.GetContext()->VSSetShader(vs_default.Get(), nullptr, 0);
+                m_gfx.GetContext()->VSSetConstantBuffers(0, Dragon_CountOf(constant_buffers), constant_buffers);
+                m_gfx.GetContext()->PSSetShader(ps_unlit.Get(), nullptr, 0);
+                m_gfx.GetContext()->PSSetConstantBuffers(0, Dragon_CountOf(constant_buffers), constant_buffers);
+                m_gfx.GetContext()->PSSetShaderResources(0, 1, lena_texture.GetAddressOfSRV());
+                m_gfx.GetContext()->PSSetSamplers(0, 1, sampler_state.GetAddressOf());
+
+                m_gfx.GetContext()->DrawIndexed(cube_mesh.index_count, 0, 0);
             }
 
             // NOTE: render ui

@@ -11,7 +11,7 @@ namespace Dragon
     CPUMesh CPUMesh::LoadFromFile(const std::string& path)
     {
         Assimp::Importer importer{};
-        const aiScene* scene{ importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs) };
+        const aiScene* scene{ importer.ReadFile(path, aiProcess_Triangulate) };
         Dragon_Check(scene);
         Dragon_Check(scene->mNumMeshes == 1);
         aiMesh* mesh{ scene->mMeshes[0] };

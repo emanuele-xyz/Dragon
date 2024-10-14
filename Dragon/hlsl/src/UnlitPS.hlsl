@@ -1,6 +1,9 @@
 #include <Dragon/VSOutput.hlsli>
 
-float4 main() : SV_TARGET
+Texture2D albedo : register(t0);
+SamplerState zampler : register(s0);
+
+float4 main(VSOutput input) : SV_TARGET
 {
-	return float4(1.0f, 0.0f, 0.0f, 0.0f);
+    return albedo.Sample(zampler, input.uv);
 }
