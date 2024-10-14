@@ -367,3 +367,6 @@ FodyWeavers.xsd
 
 # renderdoc settings
 *.cap
+
+# assets folder
+assets
