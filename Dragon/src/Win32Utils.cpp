@@ -2,6 +2,10 @@
 #include <Dragon/Win32Utils.h>
 #include <Dragon/Commons.h>
 
+#include <shlobj.h> // For SHBrowseForFolder and related functions
+
+#include <scope_guard.hpp>
+
 #include <imgui.h>
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -27,6 +31,30 @@ namespace Win32Utils
         static LONGLONG frequency{ GetPerformanceFrequency() };
         float elapsed_sec{ static_cast<float>(t1 - t0) / static_cast<float>(frequency) };
         return elapsed_sec;
+    }
+
+    std::string BrowseForFolder()
+    {
+        std::string res{};
+
+        BROWSEINFO bi{};
+        bi.lpszTitle = "Select a folder"; // Title of the dialog
+
+        // Show the dialog
+        LPITEMIDLIST pidl{ SHBrowseForFolder(&bi) };
+        if (pidl)
+        {
+            auto free_pidl{ sg::make_scope_guard([&]() { CoTaskMemFree(pidl); }) };
+
+            char path[MAX_PATH];
+            // Get the selected folder's path
+            if (SHGetPathFromIDList(pidl, path))
+            {
+                res = path;
+            }
+        }
+
+        return res; // Return empty string if no folder was selected
     }
 
     LRESULT WindowClass::Procedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)

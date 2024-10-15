@@ -9,6 +9,7 @@ namespace wrl = Microsoft::WRL;
 
 #include <vector>
 #include <span>
+#include <string>
 
 #include <Dragon/Commons.h>
 
@@ -19,6 +20,8 @@ namespace Win32Utils
     LONGLONG GetPerformanceCounter();
     LONGLONG GetPerformanceFrequency();
     float GetElapsedSec(LONGLONG t0, LONGLONG t1);
+
+    std::string BrowseForFolder();
 
     class WindowClass
     {

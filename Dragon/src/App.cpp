@@ -145,7 +145,7 @@ namespace Dragon
         GPUMesh dragon_mesh{};
         {
             auto tmp{ CPUMesh::LoadFromFile("../../assets/StanfordDragon.obj") };
-            dragon_mesh  = GPUMesh::FromCPUMesh(m_gfx.GetDevice(), tmp);
+            dragon_mesh = GPUMesh::FromCPUMesh(m_gfx.GetDevice(), tmp);
         }
 
         // TODO: use texture manager
@@ -259,6 +259,62 @@ namespace Dragon
             // NOTE: render ui
             m_imgui.NewFrame();
             {
+                if (ImGui::BeginMainMenuBar())
+                {
+                    if (ImGui::BeginMenu("Project"))
+                    {
+                        if (ImGui::MenuItem("New"))
+                        {
+                        }
+                        if (ImGui::MenuItem("Open"))
+                        {
+                            auto path{ Win32Utils::BrowseForFolder() };
+                            int kek{};
+                            kek += 1;
+                        }
+
+                        ImGui::EndMenu();
+                    }
+
+                    if (ImGui::BeginMenu("Scene"))
+                    {
+                        if (ImGui::MenuItem("New"))
+                        {
+                        }
+                        if (ImGui::MenuItem("Open"))
+                        {
+                        }
+                        if (ImGui::MenuItem("Delete"))
+                        {
+                        }
+
+                        ImGui::EndMenu();
+                    }
+
+                    if (ImGui::BeginMenu("Settings"))
+                    {
+                        if (ImGui::MenuItem("Graphics"))
+                        {
+                        }
+                        if (ImGui::MenuItem("Camera"))
+                        {
+                        }
+
+                        ImGui::EndMenu();
+                    }
+
+                    if (ImGui::BeginMenu("View"))
+                    {
+                        if (ImGui::MenuItem("Data"))
+                        {
+                        }
+
+                        ImGui::EndMenu();
+                    }
+
+                    ImGui::EndMainMenuBar();
+                }
+
                 ImGui::Begin("App Settings");
                 {
                     ImGui::Checkbox("V-Sync", &m_settings.vsync);
