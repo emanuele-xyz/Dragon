@@ -21,7 +21,8 @@ namespace Win32Utils
     LONGLONG GetPerformanceFrequency();
     float GetElapsedSec(LONGLONG t0, LONGLONG t1);
 
-    std::string BrowseForFolder();
+    std::string OpenFolderDialog();
+    std::string OpenFileDialog();
 
     class WindowClass
     {

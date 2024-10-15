@@ -3,6 +3,7 @@
 #include <Dragon/Commons.h>
 
 #include <shlobj.h> // For SHBrowseForFolder and related functions
+#include <commdlg.h> // For GetOpenFileName and related stuff
 
 #include <scope_guard.hpp>
 
@@ -33,7 +34,7 @@ namespace Win32Utils
         return elapsed_sec;
     }
 
-    std::string BrowseForFolder()
+    std::string OpenFolderDialog()
     {
         std::string res{};
 
@@ -56,6 +57,27 @@ namespace Win32Utils
         }
 
         return res; // Return empty string if no folder was selected
+    }
+
+    std::string OpenFileDialog()
+    {
+        std::string res{};
+
+        char path[MAX_PATH]{ '\0' };
+        OPENFILENAME ofn{};
+        ofn.lStructSize = sizeof(ofn);
+        ofn.lpstrFile = path;
+        ofn.nMaxFile = MAX_PATH;
+        ofn.lpstrTitle = "Select a file";
+        ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST;
+
+        // Display the dialog box
+        if (GetOpenFileName(&ofn))
+        {
+            res = ofn.lpstrFile;
+        }
+
+        return res;
     }
 
     LRESULT WindowClass::Procedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)

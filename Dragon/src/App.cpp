@@ -268,7 +268,7 @@ namespace Dragon
                         }
                         if (ImGui::MenuItem("Open"))
                         {
-                            auto path{ Win32Utils::BrowseForFolder() };
+                            auto path{ Win32Utils::OpenFolderDialog() };
                             int kek{};
                             kek += 1;
                         }
@@ -283,6 +283,9 @@ namespace Dragon
                         }
                         if (ImGui::MenuItem("Open"))
                         {
+                            auto path{ Win32Utils::OpenFileDialog() };
+                            int kek{};
+                            kek += 1;
                         }
                         if (ImGui::MenuItem("Delete"))
                         {
