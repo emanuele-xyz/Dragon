@@ -259,6 +259,44 @@ namespace Dragon
             // NOTE: render ui
             m_imgui.NewFrame();
             {
+                auto [client_w, client_h] { m_window.GetClientDimensionsFloat() };
+                //float aspect{ client_w / client_h };
+
+                // NOTE: draw hello window
+                {
+                    ImVec2 window_size{ client_w / 3.0f, client_h / 3.0f };
+                    ImVec2 window_half_size{ window_size.x / 2.0f, window_size.y / 2.0f };
+                    ImVec2 center{ client_w / 2.0f, client_h / 2.0f };
+                    ImVec2 window_pos{ center.x - window_half_size.x, center.y - window_half_size.y };
+
+                    ImGui::SetNextWindowPos(window_pos);
+                    ImGui::SetNextWindowSize(window_size);
+                    ImGui::SetNextWindowFocus();
+
+                    ImGui::Begin("Welcome to Dragon!", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+                    {
+                        ImGui::Columns(2);
+
+                        ImGui::Text("Get Started");
+                        ImGui::NextColumn();
+                        ImGui::Text("Help");
+                        ImGui::Separator();
+
+                        ImGui::NextColumn();
+                        ImGui::Button("Open Project");
+                        ImGui::Button("New Project");
+                        
+                        ImGui::NextColumn();
+                        ImGui::Button("Quick Guide");
+                        ImGui::Button("Github Repository");
+                        ImGui::Button("Documentation");
+                        ImGui::Button("File a Bug Report");
+
+                        ImGui::Columns(1);
+                    }
+                    ImGui::End();
+                }
+
                 if (ImGui::BeginMainMenuBar())
                 {
                     if (ImGui::BeginMenu("Project"))
