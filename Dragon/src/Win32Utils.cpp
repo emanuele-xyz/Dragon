@@ -39,6 +39,7 @@ namespace Win32Utils
 
         BROWSEINFO bi{};
         bi.lpszTitle = "Select a folder"; // Title of the dialog
+        bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
 
         // Show the dialog
         LPITEMIDLIST pidl{ SHBrowseForFolder(&bi) };
