@@ -271,6 +271,7 @@ namespace Dragon
 
                     ImGui::SetNextWindowPos(window_pos);
                     ImGui::SetNextWindowSize(window_size);
+                    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f)); // Dark gray opaque
                     ImGui::SetNextWindowFocus();
 
                     ImGui::Begin("Welcome to Dragon!", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
@@ -298,6 +299,8 @@ namespace Dragon
                         ImGui::Columns(1);
                     }
                     ImGui::End();
+
+                    ImGui::PopStyleColor();
                 }
 
                 if (ImGui::BeginMainMenuBar())
@@ -374,8 +377,6 @@ namespace Dragon
 
                         ImGui::EndMenu();
                     }
-
-
 
                     ImGui::EndMainMenuBar();
                 }
