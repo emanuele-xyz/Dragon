@@ -285,7 +285,7 @@ namespace Dragon
                         ImGui::NextColumn();
                         ImGui::Button("Open Project");
                         ImGui::Button("New Project");
-                        
+
                         ImGui::NextColumn();
                         ImGui::Button("Quick Guide");
                         if (ImGui::Button("Github Repository"))
@@ -355,6 +355,27 @@ namespace Dragon
 
                         ImGui::EndMenu();
                     }
+
+                    if (ImGui::BeginMenu("Help"))
+                    {
+                        if (ImGui::MenuItem("Quick Guide"))
+                        {
+                        }
+                        if (ImGui::MenuItem("Github Repository"))
+                        {
+                            Win32Utils::OpenURLInBrowser("https://github.com/emanuele-xyz/Dragon");
+                        }
+                        if (ImGui::MenuItem("Documentation"))
+                        {
+                        }
+                        if (ImGui::MenuItem("File a Bug Report"))
+                        {
+                        }
+
+                        ImGui::EndMenu();
+                    }
+
+
 
                     ImGui::EndMainMenuBar();
                 }
