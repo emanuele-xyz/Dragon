@@ -4,6 +4,7 @@
 
 #include <shlobj.h> // For SHBrowseForFolder and related functions
 #include <commdlg.h> // For GetOpenFileName and related stuff
+#include <shellapi.h> // For ShellExecute and related stuff
 
 #include <scope_guard.hpp>
 
@@ -78,6 +79,16 @@ namespace Win32Utils
         }
 
         return res;
+    }
+
+    void OpenURLInBrowser(const std::string& url)
+    {
+        // Not a real HINSTANCE
+        HINSTANCE result{ ShellExecute(NULL, "open", url.c_str(), NULL, NULL, SW_SHOWNORMAL) };
+        // Check if the operation was successful
+        if ((intptr_t)result <= 32) {
+            // TODO: what if it fails?
+        }
     }
 
     LRESULT WindowClass::Procedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)

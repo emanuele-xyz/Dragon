@@ -288,7 +288,10 @@ namespace Dragon
                         
                         ImGui::NextColumn();
                         ImGui::Button("Quick Guide");
-                        ImGui::Button("Github Repository");
+                        if (ImGui::Button("Github Repository"))
+                        {
+                            Win32Utils::OpenURLInBrowser("https://github.com/emanuele-xyz/Dragon");
+                        }
                         ImGui::Button("Documentation");
                         ImGui::Button("File a Bug Report");
 
