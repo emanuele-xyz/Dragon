@@ -122,9 +122,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\View.cpp" />
     <ClCompile Include="src\Win32Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Dragon\AppData.h" />
+    <ClInclude Include="include\Dragon\AppSettings.h" />
     <ClInclude Include="include\Dragon\Commons.h" />
     <ClInclude Include="include\Dragon\CPUMesh.h" />
     <ClInclude Include="include\Dragon\CPUTexture.h" />
@@ -137,6 +140,9 @@
     <ClInclude Include="include\Dragon\Math.h" />
     <ClInclude Include="include\Dragon\Mesh.h" />
     <ClInclude Include="include\Dragon\pch.h" />
+    <ClInclude Include="include\Dragon\View.h" />
+    <ClInclude Include="include\Dragon\ViewHello.h" />
+    <ClInclude Include="include\Dragon\ViewProject.h" />
     <ClInclude Include="include\Dragon\Win32Utils.h" />
   </ItemGroup>
   <ItemGroup>

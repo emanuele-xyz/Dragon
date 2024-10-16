@@ -3,22 +3,11 @@
 #include <Dragon/Win32Utils.h>
 #include <Dragon/Gfx.h>
 #include <Dragon/ImGuiHandle.h>
+#include <Dragon/AppSettings.h>
+#include <Dragon/AppData.h>
 
 namespace Dragon
 {
-    struct AppSettings
-    {
-        bool vsync{ false };
-    };
-
-    struct AppData
-    {
-        float time_since_start_sec;
-        float last_frame_dt_sec;
-        float last_frame_dt_msec;
-        float last_fps;
-    };
-
     class App
     {
     public:
@@ -31,12 +20,13 @@ namespace Dragon
     public:
         void Run();
     private:
-        bool m_is_running;
+        bool m_is_running; // TODO: move to view
         Win32Utils::WindowClass m_window_class;
         Win32Utils::WindowHandle m_window;
         Gfx m_gfx;
         ImGuiHandle m_imgui;
         AppSettings m_settings;
         AppData m_data;
+        // TODO: View* m_current_view
     };
 }
