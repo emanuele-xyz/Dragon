@@ -6,6 +6,8 @@
 #include <Dragon/AppSettings.h>
 #include <Dragon/AppData.h>
 
+#include <memory>
+
 namespace Dragon
 {
     class View
@@ -18,9 +20,12 @@ namespace Dragon
         View& operator=(const View&) = delete;
         View& operator=(View&&) noexcept = delete;
     public:
-        virtual void Render() {}
-    public:
         void Run();
+    public:
+        virtual std::unique_ptr<View> GetNextView() { return {}; }
+    private:
+        virtual void OnWindowMSG(const MSG&) {}
+        virtual void Render() {}
     protected:
         bool m_is_running;
         Win32Utils::WindowHandle& m_window;

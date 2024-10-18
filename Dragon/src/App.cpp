@@ -8,6 +8,7 @@
 #include <Dragon/GPUMesh.h> // TODO: to be removed
 #include <Dragon/CPUTexture.h> // TODO: to be removed
 #include <Dragon/GPUTexture.h> // TODO: to be removed
+#include <Dragon/ViewHello.h> 
 
 namespace Dragon
 {
@@ -24,6 +25,17 @@ namespace Dragon
 
     void App::Run()
     {
+        std::unique_ptr<View> current_view{ std::make_unique<ViewHello>(m_window, m_gfx, m_imgui, m_settings, m_data) };
+        while (current_view)
+        {
+            current_view->Run();
+            auto next_view{ current_view->GetNextView() };
+            current_view = std::move(next_view);
+        }
+
+        return;
+
+        #if 0
         // TODO: implement shader table
         auto [vs_default, vs_blob] {D3D11Utils::LoadVertexShaderFromFile(m_gfx.GetDevice(), "cso/DefaultVS.cso")};
         auto ps_unlit{ D3D11Utils::LoadPixelShaderFromFile(m_gfx.GetDevice(), "cso/UnlitPS.cso") };
@@ -407,5 +419,6 @@ namespace Dragon
             m_data.time_since_start_sec += m_data.last_frame_dt_sec;
             m_data.last_fps = 1.0f / m_data.last_frame_dt_sec;
         }
+        #endif
     }
 }

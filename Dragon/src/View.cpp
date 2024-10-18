@@ -25,20 +25,9 @@ namespace Dragon
             m_window.ClearMessages();
             m_window.PumpMessages();
 
-            // NOTE: process window messages
+            for (const auto& msg : m_window.GetMessages())
             {
-                auto window_messages{ m_window.GetMessages() };
-                for (const auto& msg : window_messages)
-                {
-                    if (msg.message == WM_CLOSE)
-                    {
-                        m_is_running = false;
-                    }
-                    else if (msg.message == WM_SIZE)
-                    {
-                        m_gfx.Resize();
-                    }
-                }
+                OnWindowMSG(msg);
             }
 
             Render();

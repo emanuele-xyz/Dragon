@@ -30,6 +30,8 @@ namespace Dragon
         depth_buffer_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
         auto depth_buffer{ D3D11Utils::CreateTexture2D(m_device.Get(), &depth_buffer_desc) };
         m_back_buffer_dsv = D3D11Utils::CreateDSV(m_device.Get(), depth_buffer.Get());
+
+
     }
 
     void Gfx::Resize()
