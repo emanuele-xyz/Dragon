@@ -16,4 +16,11 @@ namespace Dragon
         std::wstring wstr{ converter.from_bytes(str) };
         return wstr;
     }
+
+    bool IsEmptyFolder(const std::string& path)
+    {
+        bool is_directory{ std::filesystem::is_directory(path) };
+        Dragon_Check(is_directory);
+        return std::filesystem::is_empty(path);
+    }
 }

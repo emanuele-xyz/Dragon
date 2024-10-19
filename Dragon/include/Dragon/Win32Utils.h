@@ -21,8 +21,7 @@ namespace Win32Utils
     LONGLONG GetPerformanceFrequency();
     float GetElapsedSec(LONGLONG t0, LONGLONG t1);
 
-    std::string OpenFolderDialog();
-    std::string OpenFileDialog();
+    std::string BrowseForFile();
     std::string BrowseForFolder();
 
     void OpenURLInBrowser(const std::string& url);

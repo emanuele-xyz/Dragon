@@ -21,5 +21,6 @@ namespace Dragon
         void Render() override;
     private:
         std::string m_project_path;
+        std::string m_error_message;
     };
 }

@@ -35,29 +35,26 @@ namespace Win32Utils
         return elapsed_sec;
     }
 
-    std::string OpenFolderDialog()
+    std::string BrowseForFile()
     {
-        std::string res{};
+        wrl::ComPtr<IFileDialog> dialog{};
+        Dragon_CheckHR(CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_ALL, IID_PPV_ARGS(dialog.ReleaseAndGetAddressOf())));
+        Dragon_CheckHR(dialog->Show(NULL));
 
-        BROWSEINFO bi{};
-        bi.lpszTitle = "Select a folder"; // Title of the dialog
-        bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
+        wrl::ComPtr<IShellItem> result;
+        Dragon_CheckHR(dialog->GetResult(result.ReleaseAndGetAddressOf()));
 
-        // Show the dialog
-        LPITEMIDLIST pidl{ SHBrowseForFolder(&bi) };
-        if (pidl)
+        std::string file_path{};
         {
-            auto free_pidl{ sg::make_scope_guard([&]() { CoTaskMemFree(pidl); }) };
+            PWSTR file_path_wstr;
+            Dragon_CheckHR(result->GetDisplayName(SIGDN_FILESYSPATH, &file_path_wstr));
+            auto free_file_path_wstr{ sg::make_scope_guard([&]() { CoTaskMemFree(file_path_wstr); }) };
 
-            char path[MAX_PATH];
-            // Get the selected folder's path
-            if (SHGetPathFromIDList(pidl, path))
-            {
-                res = path;
-            }
+            std::wstring file_path_w{ file_path_wstr };
+            file_path = Dragon::GetStrFromWStr(file_path_w);
         }
 
-        return res; // Return empty string if no folder was selected
+        return file_path;
     }
 
     std::string BrowseForFolder()

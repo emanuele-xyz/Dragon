@@ -26,4 +26,6 @@ namespace Dragon
 
     std::string GetStrFromWStr(const std::wstring& wstr);
     std::wstring GetWStrFromStr(const std::string& str);
+
+    bool IsEmptyFolder(const std::string& path);
 }

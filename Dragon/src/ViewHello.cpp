@@ -53,57 +53,80 @@ namespace Dragon
         {
             auto [client_w, client_h] { m_window.GetClientDimensionsFloat() };
 
-            ImVec2 window_size{ client_w / 3.0f, client_h / 3.0f };
-            ImVec2 window_half_size{ window_size.x / 2.0f, window_size.y / 2.0f };
-            ImVec2 center{ client_w / 2.0f, client_h / 2.0f };
-            ImVec2 window_pos{ center.x - window_half_size.x, center.y - window_half_size.y };
-
-            ImGui::SetNextWindowPos(window_pos);
-            ImGui::SetNextWindowSize(window_size);
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f)); // Dark gray opaque
-            ImGui::SetNextWindowFocus();
-
-            ImGui::Begin("Welcome to Dragon!", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+            // NOTE: render hello window
             {
-                ImGui::Columns(2);
+                ImVec2 window_size{ client_w / 3.0f, client_h / 3.0f };
+                ImVec2 window_half_size{ window_size.x / 2.0f, window_size.y / 2.0f };
+                ImVec2 center{ client_w / 2.0f, client_h / 2.0f };
+                ImVec2 window_pos{ center.x - window_half_size.x, center.y - window_half_size.y };
 
-                ImGui::Text("Get Started");
-                ImGui::NextColumn();
-                ImGui::Text("Help");
-                ImGui::Separator();
+                ImGui::SetNextWindowPos(window_pos);
+                ImGui::SetNextWindowSize(window_size);
+                ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f)); // Dark gray opaque
+                ImGui::SetNextWindowFocus();
 
-                ImGui::NextColumn();
-                if (ImGui::Button("Open Project"))
+                ImGui::Begin("Welcome to Dragon!", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
                 {
-                    auto project_path{ Win32Utils::OpenFolderDialog() };
-                    if (!project_path.empty())
+                    ImGui::Columns(2);
+
+                    ImGui::Text("Get Started");
+                    ImGui::NextColumn();
+                    ImGui::Text("Help");
+                    ImGui::Separator();
+
+                    ImGui::NextColumn();
+                    if (ImGui::Button("Open Project"))
                     {
-                        // TODO: check whether there is a proper project file inside the folder
-                        m_project_path = project_path;
-                        m_is_running = false;
+                        // TODO: to be implemented
                     }
-                }
-                if (ImGui::Button("New Project"))
-                {
-                    auto path{ Win32Utils::BrowseForFolder() };
-                    int kek{};
-                    kek++;
-                }
+                    if (ImGui::Button("New Project"))
+                    {
+                        auto path{ Win32Utils::BrowseForFolder() };
+                        if (IsEmptyFolder(path))
+                        {
+                            // TODO: initialize project files in folder and transition to project view
+                        }
+                        else
+                        {
+                            m_error_message = "A project can only be created for an empty folder";
+                        }
+                    }
 
-                ImGui::NextColumn();
-                ImGui::Button("Quick Guide");
-                if (ImGui::Button("Github Repository"))
-                {
-                    Win32Utils::OpenURLInBrowser("https://github.com/emanuele-xyz/Dragon");
-                }
-                ImGui::Button("Documentation");
-                ImGui::Button("File a Bug Report");
+                    ImGui::NextColumn();
+                    ImGui::Button("Quick Guide");
+                    if (ImGui::Button("Github Repository"))
+                    {
+                        Win32Utils::OpenURLInBrowser("https://github.com/emanuele-xyz/Dragon");
+                    }
+                    ImGui::Button("Documentation");
+                    ImGui::Button("File a Bug Report");
 
-                ImGui::Columns(1);
+                    ImGui::Columns(1);
+                }
+                ImGui::End();
+
+                ImGui::PopStyleColor();
             }
-            ImGui::End();
 
-            ImGui::PopStyleColor();
+            // NOTE: render error message window
+            if (!m_error_message.empty())
+            {
+                ImVec2 window_size{ client_w / 4.0f, client_h / 8.0f };
+                ImVec2 window_pad{ 10.0f, 10.0f };
+                ImVec2 window_pos{ client_w - window_pad.x - window_size.x, client_h - window_pad.y - window_size.y };
+
+                ImGui::SetNextWindowPos(window_pos);
+                ImGui::SetNextWindowSize(window_size);
+                ImGui::PushStyleColor(ImGuiCol_TitleBg, { 1.0f, 0.0f, 0.0f, 1.0f });
+
+                ImGui::Begin("Error!", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+                {
+                    ImGui::TextColored({ 1.0f, 0.0f, 0.0f, 1.0f }, m_error_message.c_str());
+                }
+                ImGui::End();
+
+                ImGui::PopStyleColor();
+            }
         }
         m_imgui.Render();
     }
