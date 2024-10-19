@@ -83,7 +83,12 @@ namespace Dragon
                         m_is_running = false;
                     }
                 }
-                ImGui::Button("New Project");
+                if (ImGui::Button("New Project"))
+                {
+                    auto path{ Win32Utils::BrowseForFolder() };
+                    int kek{};
+                    kek++;
+                }
 
                 ImGui::NextColumn();
                 ImGui::Button("Quick Guide");

@@ -23,6 +23,7 @@ namespace Win32Utils
 
     std::string OpenFolderDialog();
     std::string OpenFileDialog();
+    std::string BrowseForFolder();
 
     void OpenURLInBrowser(const std::string& url);
 

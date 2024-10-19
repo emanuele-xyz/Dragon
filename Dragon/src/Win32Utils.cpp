@@ -60,6 +60,32 @@ namespace Win32Utils
         return res; // Return empty string if no folder was selected
     }
 
+    std::string BrowseForFolder()
+    {
+        wrl::ComPtr<IFileDialog> dialog{};
+        Dragon_CheckHR(CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_ALL, IID_PPV_ARGS(dialog.ReleaseAndGetAddressOf())));
+
+        DWORD options{};
+        dialog->GetOptions(&options);
+        dialog->SetOptions(options | FOS_PICKFOLDERS);
+        Dragon_CheckHR(dialog->Show(NULL));
+
+        wrl::ComPtr<IShellItem> result;
+        Dragon_CheckHR(dialog->GetResult(result.ReleaseAndGetAddressOf()));
+
+        std::string folder_path{};
+        {
+            PWSTR folder_path_wstr;
+            Dragon_CheckHR(result->GetDisplayName(SIGDN_FILESYSPATH, &folder_path_wstr));
+            auto free_folder_path_wstr{ sg::make_scope_guard([&]() { CoTaskMemFree(folder_path_wstr); }) };
+
+            std::wstring folder_path_w{ folder_path_wstr };
+            folder_path = Dragon::GetStrFromWStr(folder_path_w);
+        }
+
+        return folder_path;
+    }
+
     std::string OpenFileDialog()
     {
         std::string res{};
