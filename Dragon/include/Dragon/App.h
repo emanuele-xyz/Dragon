@@ -34,5 +34,6 @@ namespace Dragon
         std::string m_last_message;
         bool m_show_error_window;
         std::string m_last_error;
+        bool m_show_new_project_window;
     };
 }

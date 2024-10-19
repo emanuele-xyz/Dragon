@@ -23,6 +23,7 @@ namespace Dragon
         , m_last_message{ "Hello! This is a message sent from Dragon!" } // TODO: make empty
         , m_show_error_window{ true } // TODO: make false
         , m_last_error{ "Error! Something went wrong :c" } // TODO: make empty
+        , m_show_new_project_window{ true } // TODO: make false
     {
     }
 
@@ -272,6 +273,7 @@ namespace Dragon
                     {
                         if (ImGui::MenuItem("New"))
                         {
+                            m_show_new_project_window = true;
                         }
                         if (ImGui::MenuItem("Open"))
                         {
@@ -368,6 +370,18 @@ namespace Dragon
                     }
                     ImGui::End();
                     ImGui::PopStyleColor(3);
+                }
+
+                if (m_show_new_project_window)
+                {
+                    if (ImGui::Begin("New Project", &m_show_new_project_window))
+                    {
+                        if (ImGui::Button("Create"))
+                        {
+                            // TODO: to be implemented
+                        }
+                    }
+                    ImGui::End();
                 }
 
                 ImGui::Begin("App Settings");
