@@ -21,6 +21,8 @@ namespace Dragon
         , m_data{}
         , m_show_message_window{ true } // TODO: make false
         , m_last_message{ "Hello! This is a message sent from Dragon!" } // TODO: make empty
+        , m_show_error_window{ true } // TODO: make false
+        , m_last_error{ "Error! Something went wrong :c" } // TODO: make empty
     {
     }
 
@@ -350,6 +352,19 @@ namespace Dragon
                     if (ImGui::Begin("Message", &m_show_message_window))
                     {
                         ImGui::TextColored({ 0.0f, 1.0f, 0.0f, 1.0f }, m_last_message.c_str());
+                    }
+                    ImGui::End();
+                    ImGui::PopStyleColor(3);
+                }
+
+                if (m_show_error_window)
+                {
+                    ImGui::PushStyleColor(ImGuiCol_TitleBg, { 0.3f, 0.0f, 0.0f, 1.0f });
+                    ImGui::PushStyleColor(ImGuiCol_TitleBgActive, { 0.5f, 0.0f, 0.0f, 1.0f });
+                    ImGui::PushStyleColor(ImGuiCol_TitleBgCollapsed, { 0.3f, 0.0f, 0.0f, 0.5f });
+                    if (ImGui::Begin("Error", &m_show_error_window))
+                    {
+                        ImGui::TextColored({ 1.0f, 0.0f, 0.0f, 1.0f }, m_last_error.c_str());
                     }
                     ImGui::End();
                     ImGui::PopStyleColor(3);

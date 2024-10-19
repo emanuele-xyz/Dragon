@@ -32,5 +32,7 @@ namespace Dragon
         // ----------------------------
         bool m_show_message_window;
         std::string m_last_message;
+        bool m_show_error_window;
+        std::string m_last_error;
     };
 }
