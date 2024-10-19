@@ -19,6 +19,8 @@ namespace Dragon
         , m_imgui{ m_window.GetRawHandle(), m_gfx.GetDevice(), m_gfx.GetContext() }
         , m_settings{}
         , m_data{}
+        , m_show_message_window{ true } // TODO: make false
+        , m_last_message{ "Hello! This is a message sent from Dragon!" } // TODO: make empty
     {
     }
 
@@ -338,6 +340,19 @@ namespace Dragon
                     }
 
                     ImGui::EndMainMenuBar();
+                }
+
+                if (m_show_message_window)
+                {
+                    ImGui::PushStyleColor(ImGuiCol_TitleBg, { 0.0f, 0.3f, 0.0f, 1.0f });
+                    ImGui::PushStyleColor(ImGuiCol_TitleBgActive, { 0.0f, 0.5f, 0.0f, 1.0f });
+                    ImGui::PushStyleColor(ImGuiCol_TitleBgCollapsed, { 0.0f, 0.3f, 0.0f, 0.5f });
+                    if (ImGui::Begin("Message", &m_show_message_window))
+                    {
+                        ImGui::TextColored({ 0.0f, 1.0f, 0.0f, 1.0f }, m_last_message.c_str());
+                    }
+                    ImGui::End();
+                    ImGui::PopStyleColor(3);
                 }
 
                 ImGui::Begin("App Settings");

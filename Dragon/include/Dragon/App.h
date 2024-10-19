@@ -6,6 +6,8 @@
 #include <Dragon/AppSettings.h>
 #include <Dragon/AppData.h>
 
+#include <string>
+
 namespace Dragon
 {
     class App
@@ -27,5 +29,8 @@ namespace Dragon
         ImGuiHandle m_imgui;
         AppSettings m_settings;
         AppData m_data;
+        // ----------------------------
+        bool m_show_message_window;
+        std::string m_last_message;
     };
 }
