@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include <string>
 
+#define DRAGON_PROJECT_FILE_NAME "dragon.xml"
+
 #if defined(_DEBUG)
 #define Dragon_Error(message) __debugbreak()
 #else

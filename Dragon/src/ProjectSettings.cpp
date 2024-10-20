@@ -4,8 +4,6 @@
 
 #include <pugixml.hpp>
 
-#define DRAGON_PROJECT_FILE_NAME "dragon.xml"
-
 namespace Dragon
 {
     ProjectSettings::ProjectSettings(const std::string& path, bool load_from_file)

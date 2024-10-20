@@ -39,5 +39,7 @@ namespace Dragon
         std::string m_last_error;
         bool m_show_new_project_window;
         char m_new_project_path[MAX_PATH];
+        bool m_show_open_project_window;
+        char m_open_project_path[MAX_PATH];
     };
 }

@@ -27,6 +27,8 @@ namespace Dragon
         , m_last_error{ "Error! Something went wrong :c" } // TODO: make empty
         , m_show_new_project_window{ true } // TODO: make false
         , m_new_project_path{}
+        , m_show_open_project_window{ true } // TODO: make false
+        , m_open_project_path{}
     {
     }
 
@@ -280,9 +282,7 @@ namespace Dragon
                         }
                         if (ImGui::MenuItem("Open"))
                         {
-                            auto path{ Win32Utils::BrowseForFolder() };
-                            int kek{};
-                            kek += 1;
+                            m_show_open_project_window = true;
                         }
 
                         ImGui::EndMenu();
@@ -397,6 +397,28 @@ namespace Dragon
                             else
                             {
                                 m_last_error = std::format("'{}' is not a folder!", m_new_project_path);
+                            }
+                        }
+                    }
+                    ImGui::End();
+                }
+
+                if (m_show_open_project_window)
+                {
+                    if (ImGui::Begin("Open Project", &m_show_open_project_window))
+                    {
+                        ImGui::InputText("Path", m_open_project_path, MAX_PATH);
+                        if (ImGui::Button("Open"))
+                        {
+                            auto path{ std::format("{}\\{}", m_open_project_path, DRAGON_PROJECT_FILE_NAME) };
+                            if (std::filesystem::exists(path))
+                            {
+                                m_last_message = std::format("Opening project in folder '{}'!", m_open_project_path);
+                                m_project = std::make_unique<Project>(m_open_project_path);
+                            }
+                            else
+                            {
+                                m_last_error = std::format("There is no {} file in directory '{}'", DRAGON_PROJECT_FILE_NAME, m_open_project_path);
                             }
                         }
                     }
