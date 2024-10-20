@@ -8,6 +8,7 @@
 #include <Dragon/GPUMesh.h> // TODO: to be removed
 #include <Dragon/CPUTexture.h> // TODO: to be removed
 #include <Dragon/GPUTexture.h> // TODO: to be removed
+#include <Dragon/ProjectSettings.h> // TODO: to be removed?
 
 namespace Dragon
 {
@@ -19,11 +20,13 @@ namespace Dragon
         , m_imgui{ m_window.GetRawHandle(), m_gfx.GetDevice(), m_gfx.GetContext() }
         , m_settings{}
         , m_data{}
+        , m_project{}
         , m_show_message_window{ true } // TODO: make false
         , m_last_message{ "Hello! This is a message sent from Dragon!" } // TODO: make empty
         , m_show_error_window{ true } // TODO: make false
         , m_last_error{ "Error! Something went wrong :c" } // TODO: make empty
         , m_show_new_project_window{ true } // TODO: make false
+        , m_new_project_path{}
     {
     }
 
@@ -376,9 +379,25 @@ namespace Dragon
                 {
                     if (ImGui::Begin("New Project", &m_show_new_project_window))
                     {
+                        ImGui::InputText("Path", m_new_project_path, MAX_PATH);
                         if (ImGui::Button("Create"))
                         {
-                            // TODO: to be implemented
+                            if (std::filesystem::is_directory(m_new_project_path))
+                            {
+                                if (std::filesystem::is_empty(m_new_project_path))
+                                {
+                                    m_last_message = std::format("Creating new project in folder '{}'!", m_new_project_path);
+                                    m_project = std::make_unique<Project>(m_new_project_path, true);
+                                }
+                                else
+                                {
+                                    m_last_error = std::format("Folder '{}' is not empty!", m_new_project_path);
+                                }
+                            }
+                            else
+                            {
+                                m_last_error = std::format("'{}' is not a folder!", m_new_project_path);
+                            }
                         }
                     }
                     ImGui::End();

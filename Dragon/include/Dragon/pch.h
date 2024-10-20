@@ -5,6 +5,7 @@
 #include <span>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <format>
 #include <iostream>
 #include <stdexcept>

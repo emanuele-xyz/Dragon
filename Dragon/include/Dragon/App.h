@@ -5,8 +5,10 @@
 #include <Dragon/ImGuiHandle.h>
 #include <Dragon/AppSettings.h>
 #include <Dragon/AppData.h>
+#include <Dragon/Project.h>
 
 #include <string>
+#include <memory>
 
 namespace Dragon
 {
@@ -29,11 +31,13 @@ namespace Dragon
         ImGuiHandle m_imgui;
         AppSettings m_settings;
         AppData m_data;
+        std::unique_ptr<Project> m_project;
         // ----------------------------
         bool m_show_message_window;
         std::string m_last_message;
         bool m_show_error_window;
         std::string m_last_error;
         bool m_show_new_project_window;
+        char m_new_project_path[MAX_PATH];
     };
 }
