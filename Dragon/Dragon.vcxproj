@@ -124,6 +124,7 @@
     </ClCompile>
     <ClCompile Include="src\Project.cpp" />
     <ClCompile Include="src\ProjectSettings.cpp" />
+    <ClCompile Include="src\GfxResources.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Win32Utils.cpp" />
   </ItemGroup>
@@ -148,6 +149,7 @@
     <ClInclude Include="include\Dragon\pch.h" />
     <ClInclude Include="include\Dragon\Project.h" />
     <ClInclude Include="include\Dragon\ProjectSettings.h" />
+    <ClInclude Include="include\Dragon\GfxResources.h" />
     <ClInclude Include="include\Dragon\Renderer.h" />
     <ClInclude Include="include\Dragon\Win32Utils.h" />
   </ItemGroup>

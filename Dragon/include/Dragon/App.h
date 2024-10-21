@@ -2,6 +2,8 @@
 
 #include <Dragon/Win32Utils.h>
 #include <Dragon/Gfx.h>
+#include <Dragon/GfxResources.h>
+#include <Dragon/Renderer.h>
 #include <Dragon/ImGuiHandle.h>
 #include <Dragon/AppSettings.h>
 #include <Dragon/AppData.h>
@@ -28,6 +30,8 @@ namespace Dragon
         Win32Utils::WindowClass m_window_class;
         Win32Utils::WindowHandle m_window;
         Gfx m_gfx;
+        GfxResources m_gfx_resources;
+        Renderer m_renderer;
         ImGuiHandle m_imgui;
         AppSettings m_settings;
         AppData m_data;

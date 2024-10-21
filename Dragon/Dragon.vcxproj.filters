@@ -60,6 +60,9 @@
     <ClCompile Include="src\ProjectSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\GfxResources.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -116,7 +119,7 @@
     <ClInclude Include="include\Dragon\ProjectSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Dragon\Renderer.h">
+    <ClInclude Include="include\Dragon\GfxResources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Dragon\hlsl\DefaultVSDebug.h">
@@ -129,6 +132,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Dragon\hlsl\UnlitPSRelease.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Dragon\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

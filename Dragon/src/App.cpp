@@ -17,6 +17,8 @@ namespace Dragon
         , m_window_class{ "dragon_window_class" }
         , m_window{ m_window_class.GetName(), "Dragon", 1280, 720, WS_OVERLAPPEDWINDOW }
         , m_gfx{ m_window.GetRawHandle() }
+        , m_gfx_resources{ m_gfx.GetDevice() }
+        , m_renderer{ m_gfx.GetDevice(), m_gfx.GetContext(), &m_gfx_resources }
         , m_imgui{ m_window.GetRawHandle(), m_gfx.GetDevice(), m_gfx.GetContext() }
         , m_settings{}
         , m_data{}
@@ -34,128 +36,6 @@ namespace Dragon
 
     void App::Run()
     {
-        #if defined(_DEBUG)
-        #include <Dragon/hlsl/DefaultVSDebug.h> // for vs_default_bytecode
-        #include <Dragon/hlsl/UnlitPSDebug.h> // for ps_unlit_bytecode
-        #else
-        #include <Dragon/hlsl/DefaultVSRelease.h> // for vs_default_bytecode
-        #include <Dragon/hlsl/UnlitPSRelease.h> // for ps_unlit_bytecode
-        #endif
-
-        // TODO: implement shader table
-        auto vs_default{ D3D11Utils::LoadVertexShaderFromBytecode(m_gfx.GetDevice(), vs_default_bytecode, Dragon_CountOf(vs_default_bytecode)) };
-        auto ps_unlit{ D3D11Utils::LoadPixelShaderFromBytecode(m_gfx.GetDevice(), ps_unlit_bytecode, Dragon_CountOf(ps_unlit_bytecode)) };
-        D3D11_INPUT_ELEMENT_DESC input_element_desc[]
-        {
-            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-            { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        };
-        wrl::ComPtr<ID3D11InputLayout> input_layout{
-            D3D11Utils::CreateInputLayout(
-                m_gfx.GetDevice(), input_element_desc, Dragon_CountOf(input_element_desc), vs_default_bytecode, Dragon_CountOf(vs_default_bytecode)
-            )
-        };
-
-        // TODO: move to gfx
-        wrl::ComPtr<ID3D11RasterizerState> rasterizer_state{};
-        {
-            // NOTE: https://learn.microsoft.com/en-us/windows/win32/api/d3d11/ns-d3d11-d3d11_rasterizer_desc
-            D3D11_RASTERIZER_DESC desc{};
-            desc.FillMode = D3D11_FILL_SOLID;
-            desc.CullMode = D3D11_CULL_BACK;
-            desc.FrontCounterClockwise = TRUE;
-            desc.DepthBias = 0;
-            desc.DepthBiasClamp = 0.0f;
-            desc.SlopeScaledDepthBias = 0.0f;
-            desc.DepthClipEnable = TRUE;
-            desc.ScissorEnable = FALSE;
-            // NOTE: we recommend that you always set MultisampleEnable to TRUE whenever you render on MSAA render targets
-            desc.MultisampleEnable = FALSE;
-            // NOTE: it only applies if doing line drawing and MultisampleEnable is FALSE
-            desc.AntialiasedLineEnable = FALSE;
-
-            Dragon_CheckHR(m_gfx.GetDevice()->CreateRasterizerState(&desc, rasterizer_state.ReleaseAndGetAddressOf()));
-        }
-
-        // TODO: move to gfx
-        wrl::ComPtr<ID3D11DepthStencilState> depth_stencil_state{};
-        {
-            D3D11_DEPTH_STENCIL_DESC desc{};
-            desc.DepthEnable = TRUE;
-            desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-            desc.DepthFunc = D3D11_COMPARISON_LESS;
-            //desc.StencilEnable = ;
-            //desc.StencilReadMask = ;
-            //desc.StencilWriteMask = ;
-            //desc.FrontFace = ;
-            //desc.BackFace = ;
-
-            Dragon_CheckHR(m_gfx.GetDevice()->CreateDepthStencilState(&desc, depth_stencil_state.ReleaseAndGetAddressOf()));
-        }
-
-        // TODO: move to gfx
-        wrl::ComPtr<ID3D11SamplerState> sampler_state{};
-        {
-            D3D11_SAMPLER_DESC desc{};
-            desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-            desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-            desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-            desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-            desc.MipLODBias = 0.0f;
-            desc.MaxAnisotropy = 0;
-            desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-            desc.BorderColor[0] = 1.0f; // NOTE: obnoxious pink border color
-            desc.BorderColor[1] = 0.0f; // NOTE: obnoxious pink border color
-            desc.BorderColor[2] = 1.0f; // NOTE: obnoxious pink border color
-            desc.BorderColor[3] = 1.0f; // NOTE: obnoxious pink border color
-            desc.MinLOD = 0.0f;
-            desc.MaxLOD = D3D11_FLOAT32_MAX;
-
-            Dragon_CheckHR(m_gfx.GetDevice()->CreateSamplerState(&desc, sampler_state.ReleaseAndGetAddressOf()));
-        }
-
-        struct CBCamera
-        {
-            Matrix view;
-            Matrix projection;
-        };
-
-        struct CBObject
-        {
-            Matrix model;
-            Matrix normal;
-        };
-
-        // TODO: move to renderer
-        wrl::ComPtr<ID3D11Buffer> camera_constants{};
-        wrl::ComPtr<ID3D11Buffer> object_constants{};
-        ID3D11Buffer* constant_buffers[2]{};
-        {
-            {
-                D3D11_BUFFER_DESC desc{};
-                desc.ByteWidth = sizeof(CBCamera);
-                desc.Usage = D3D11_USAGE_DYNAMIC;
-                desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-                desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-                desc.MiscFlags = 0;
-                desc.StructureByteStride = 0;
-                Dragon_CheckHR(m_gfx.GetDevice()->CreateBuffer(&desc, nullptr, camera_constants.ReleaseAndGetAddressOf()));
-                constant_buffers[0] = camera_constants.Get();
-            }
-            {
-                D3D11_BUFFER_DESC desc{};
-                desc.ByteWidth = sizeof(CBObject);
-                desc.Usage = D3D11_USAGE_DYNAMIC;
-                desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-                desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-                desc.MiscFlags = 0;
-                desc.StructureByteStride = 0;
-                Dragon_CheckHR(m_gfx.GetDevice()->CreateBuffer(&desc, nullptr, object_constants.ReleaseAndGetAddressOf()));
-                constant_buffers[1] = object_constants.Get();
-            }
-        }
-
         // TODO: use a mesh manager
         GPUMesh cube_mesh{};
         {
@@ -203,85 +83,17 @@ namespace Dragon
                 }
             }
 
+            auto [client_w, client_h] { m_window.GetClientDimensionsFloat() };
+
             // TODO: move to renderer
             // NOTE: render scene
             {
-                auto [client_w, client_h] { m_window.GetClientDimensionsFloat() };
-                float aspect{ client_w / client_h };
-
-                // NOTE: update camera constants
-                // TODO: move to renderer
-                {
-                    {
-                        D3D11Utils::SubresourceMapping subres_mapping{ m_gfx.GetContext(), camera_constants.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0 };
-                        auto constants{ static_cast<CBCamera*>(subres_mapping.GetSubresource().pData) };
-                        constants->view = Matrix::CreateLookAt({ -1.0f, 2.0f, 2.0f }, Vector3::Zero, Vector3::Up);
-                        constants->projection = Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(45.0f), aspect, 0.01f, 100.0f);
-                    }
-                }
-
-                // NOTE: update base object constants
-                // TODO: move to renderer
-                {
-                    {
-                        D3D11Utils::SubresourceMapping subres_mapping{ m_gfx.GetContext(), object_constants.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0 };
-                        auto constants{ static_cast<CBObject*>(subres_mapping.GetSubresource().pData) };
-                        Matrix translate{ Matrix::CreateTranslation(Vector3::Zero) };
-                        Matrix rotate_x{ Matrix::CreateRotationX(DirectX::XMConvertToRadians(0.0f)) };
-                        Matrix rotate_y{ Matrix::CreateRotationY(DirectX::XMConvertToRadians(0.0f)) };
-                        Matrix rotate_z{ Matrix::CreateRotationZ(DirectX::XMConvertToRadians(0.0f)) };
-                        Matrix rotate{ rotate_x * rotate_y * rotate_z };
-                        Matrix scale{ Matrix::CreateScale(Vector3::One) };
-                        Matrix model{ scale * rotate * translate };
-                        Matrix normal{ scale * rotate };
-                        normal.Invert();
-                        normal.Transpose();
-                        constants->model = model;
-                        constants->normal = normal;
-                    }
-                }
-
-                auto rtv{ m_gfx.GetBackBufferRTV() };
-                auto dsv{ m_gfx.GetBackBufferDSV() };
-                float clear_color[4]{ 1.0f, 0.0f, 1.0f, 1.0f };
-                m_gfx.GetContext()->ClearRenderTargetView(rtv, clear_color);
-                m_gfx.GetContext()->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-                D3D11_VIEWPORT viewport{};
-                viewport.TopLeftX = 0.0f;
-                viewport.TopLeftY = 0.0f;
-                viewport.Width = client_w;
-                viewport.Height = client_h;
-                viewport.MinDepth = 0.0f;
-                viewport.MaxDepth = 1.0f;
-
-                m_gfx.GetContext()->RSSetViewports(1, &viewport);
-                m_gfx.GetContext()->RSSetState(rasterizer_state.Get());
-                m_gfx.GetContext()->OMSetRenderTargets(1, &rtv, dsv);
-                m_gfx.GetContext()->OMSetDepthStencilState(depth_stencil_state.Get(), 0);
-                m_gfx.GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-                m_gfx.GetContext()->IASetIndexBuffer(dragon_mesh.indices.Get(), DXGI_FORMAT_R32_UINT, 0);
-                m_gfx.GetContext()->IASetVertexBuffers(
-                    0, static_cast<UINT>(Mesh::VertexBufferIdx::Count),
-                    dragon_mesh.vertex_buffer_pointers, dragon_mesh.vertex_buffer_strides, dragon_mesh.vertex_buffer_offsets
-                );
-                m_gfx.GetContext()->IASetInputLayout(input_layout.Get());
-                m_gfx.GetContext()->VSSetShader(vs_default.Get(), nullptr, 0);
-                m_gfx.GetContext()->VSSetConstantBuffers(0, Dragon_CountOf(constant_buffers), constant_buffers);
-                m_gfx.GetContext()->PSSetShader(ps_unlit.Get(), nullptr, 0);
-                m_gfx.GetContext()->PSSetConstantBuffers(0, Dragon_CountOf(constant_buffers), constant_buffers);
-                m_gfx.GetContext()->PSSetShaderResources(0, 1, dragon_texture.GetAddressOfSRV());
-                m_gfx.GetContext()->PSSetSamplers(0, 1, sampler_state.GetAddressOf());
-
-                m_gfx.GetContext()->DrawIndexed(dragon_mesh.index_count, 0, 0);
+                m_renderer.Render(client_w, client_h, m_gfx.GetBackBufferRTV(), m_gfx.GetBackBufferDSV(), &dragon_mesh, &dragon_texture);
             }
 
             // NOTE: render ui
             m_imgui.NewFrame();
             {
-                auto [client_w, client_h] { m_window.GetClientDimensionsFloat() };
-                //float aspect{ client_w / client_h };
-
                 if (ImGui::BeginMainMenuBar())
                 {
                     if (ImGui::BeginMenu("Project"))
