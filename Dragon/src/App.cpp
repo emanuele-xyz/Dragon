@@ -34,9 +34,17 @@ namespace Dragon
 
     void App::Run()
     {
+        #if defined(_DEBUG)
+        #include <Dragon/hlsl/DefaultVSDebug.h> // for vs_default_bytecode
+        #include <Dragon/hlsl/UnlitPSDebug.h> // for ps_unlit_bytecode
+        #else
+        #include <Dragon/hlsl/DefaultVSRelease.h> // for vs_default_bytecode
+        #include <Dragon/hlsl/UnlitPSRelease.h> // for ps_unlit_bytecode
+        #endif
+
         // TODO: implement shader table
-        auto [vs_default, vs_blob] {D3D11Utils::LoadVertexShaderFromFile(m_gfx.GetDevice(), "cso/DefaultVS.cso")};
-        auto ps_unlit{ D3D11Utils::LoadPixelShaderFromFile(m_gfx.GetDevice(), "cso/UnlitPS.cso") };
+        auto vs_default{ D3D11Utils::LoadVertexShaderFromBytecode(m_gfx.GetDevice(), vs_default_bytecode, Dragon_CountOf(vs_default_bytecode)) };
+        auto ps_unlit{ D3D11Utils::LoadPixelShaderFromBytecode(m_gfx.GetDevice(), ps_unlit_bytecode, Dragon_CountOf(ps_unlit_bytecode)) };
         D3D11_INPUT_ELEMENT_DESC input_element_desc[]
         {
             { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -44,7 +52,9 @@ namespace Dragon
             { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         };
         wrl::ComPtr<ID3D11InputLayout> input_layout{
-            D3D11Utils::CreateInputLayout(m_gfx.GetDevice(), input_element_desc, Dragon_CountOf(input_element_desc), vs_blob.Get())
+            D3D11Utils::CreateInputLayout(
+                m_gfx.GetDevice(), input_element_desc, Dragon_CountOf(input_element_desc), vs_default_bytecode, Dragon_CountOf(vs_default_bytecode)
+            )
         };
 
         // TODO: move to gfx

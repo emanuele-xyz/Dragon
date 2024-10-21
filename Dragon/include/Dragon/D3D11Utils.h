@@ -36,7 +36,10 @@ namespace D3D11Utils
     wrl::ComPtr<ID3D11RenderTargetView> CreateRTV(ID3D11Device* device, ID3D11Resource* resource);
     std::tuple<wrl::ComPtr<ID3D11VertexShader>, wrl::ComPtr<ID3DBlob>> LoadVertexShaderFromFile(ID3D11Device* device, const std::string& path);
     wrl::ComPtr<ID3D11PixelShader> LoadPixelShaderFromFile(ID3D11Device* device, const std::string& path);
+    wrl::ComPtr<ID3D11VertexShader> LoadVertexShaderFromBytecode(ID3D11Device* device, const void* bytecode, SIZE_T bytecode_length);
+    wrl::ComPtr<ID3D11PixelShader> LoadPixelShaderFromBytecode(ID3D11Device* device, const void* bytecode, SIZE_T bytecode_length);
     wrl::ComPtr<ID3D11InputLayout> CreateInputLayout(ID3D11Device* device, D3D11_INPUT_ELEMENT_DESC* desc, UINT num_elements, ID3DBlob* vs_blob);
+    wrl::ComPtr<ID3D11InputLayout> CreateInputLayout(ID3D11Device* device, D3D11_INPUT_ELEMENT_DESC* desc, UINT num_elements, const void* vs_bytecode, SIZE_T vs_bytecode_length);
     wrl::ComPtr<ID3D11Buffer> CreateBuffer(ID3D11Device* device, D3D11_BUFFER_DESC* desc, D3D11_SUBRESOURCE_DATA* subres_data);
     wrl::ComPtr<ID3D11Texture2D> CreateTexture2D(ID3D11Device* device, D3D11_TEXTURE2D_DESC* desc, D3D11_SUBRESOURCE_DATA* data = nullptr);
     wrl::ComPtr<ID3D11DepthStencilView> CreateDSV(ID3D11Device* device, ID3D11Resource* resource, D3D11_DEPTH_STENCIL_VIEW_DESC* desc = nullptr);

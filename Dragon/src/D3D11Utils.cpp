@@ -124,10 +124,31 @@ namespace D3D11Utils
         return shader;
     }
 
+    wrl::ComPtr<ID3D11VertexShader> LoadVertexShaderFromBytecode(ID3D11Device* device, const void* bytecode, SIZE_T bytecode_length)
+    {
+        wrl::ComPtr<ID3D11VertexShader> shader{};
+        Dragon_CheckHR(device->CreateVertexShader(bytecode, bytecode_length, nullptr, shader.ReleaseAndGetAddressOf()));
+        return shader;
+    }
+
+    wrl::ComPtr<ID3D11PixelShader> LoadPixelShaderFromBytecode(ID3D11Device* device, const void* bytecode, SIZE_T bytecode_length)
+    {
+        wrl::ComPtr<ID3D11PixelShader> shader{};
+        Dragon_CheckHR(device->CreatePixelShader(bytecode, bytecode_length, nullptr, shader.ReleaseAndGetAddressOf()));
+        return shader;
+    }
+
     wrl::ComPtr<ID3D11InputLayout> CreateInputLayout(ID3D11Device* device, D3D11_INPUT_ELEMENT_DESC* desc, UINT num_elements, ID3DBlob* vs_blob)
     {
         wrl::ComPtr<ID3D11InputLayout> input_layout{};
         Dragon_CheckHR(device->CreateInputLayout(desc, num_elements, vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), input_layout.ReleaseAndGetAddressOf()));
+        return input_layout;
+    }
+
+    wrl::ComPtr<ID3D11InputLayout> CreateInputLayout(ID3D11Device* device, D3D11_INPUT_ELEMENT_DESC* desc, UINT num_elements, const void* vs_bytecode, SIZE_T vs_bytecode_length)
+    {
+        wrl::ComPtr<ID3D11InputLayout> input_layout{};
+        Dragon_CheckHR(device->CreateInputLayout(desc, num_elements, vs_bytecode, vs_bytecode_length, input_layout.ReleaseAndGetAddressOf()));
         return input_layout;
     }
 
