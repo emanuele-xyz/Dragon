@@ -22,6 +22,10 @@ namespace Dragon
         , m_imgui{ m_window.GetRawHandle(), m_gfx.GetDevice(), m_gfx.GetContext() }
         , m_settings{}
         , m_data{}
+        , m_mesh_manager{}
+        , m_texture_manager{}
+        , m_vertex_shaders{}
+        , m_pixel_shaders{}
         , m_project{}
         , m_show_message_window{ true } // TODO: make false
         , m_last_message{ "Hello! This is a message sent from Dragon!" } // TODO: make empty
@@ -36,12 +40,14 @@ namespace Dragon
 
     void App::Run()
     {
-        // TODO: use a mesh manager
-        GPUMesh cube_mesh{};
-        {
-            auto tmp{ CPUMesh::LoadFromFile("../../assets/cube.obj") };
-            cube_mesh = GPUMesh::FromCPUMesh(m_gfx.GetDevice(), tmp);
-        }
+        // NOTE: register default meshes
+        m_mesh_manager.RegisterMesh(GPUMesh::FromCPUMesh(m_gfx.GetDevice(), CPUMesh::Cube()), "cube");
+
+        // NOTE: register default textures
+        m_texture_manager.RegisterTexture(GPUTexture::FromCPUTexture(m_gfx.GetDevice(), CPUTexture::Color(0, 0, 0, 255)), "black");
+        m_texture_manager.RegisterTexture(GPUTexture::FromCPUTexture(m_gfx.GetDevice(), CPUTexture::Color(255, 255, 255, 255)), "white");
+        m_texture_manager.RegisterTexture(GPUTexture::FromCPUTexture(m_gfx.GetDevice(), CPUTexture::Color(255, 0, 0, 255)), "red");
+
         GPUMesh dragon_mesh{};
         {
             auto tmp{ CPUMesh::LoadFromFile("../../assets/StanfordDragon.obj") };
@@ -259,6 +265,22 @@ namespace Dragon
                     ImGui::Text("last frame dt (sec): %.6f", m_data.last_frame_dt_sec);
                     ImGui::Text("last frame dt (msec): %.3f", m_data.last_frame_dt_msec);
                     ImGui::Text("last fps: %.1f", m_data.last_fps);
+                }
+                ImGui::End();
+
+                ImGui::Begin("Textures");
+                {
+                    ImGui::Text("white");
+                    auto white{ m_texture_manager.Get("white") };
+                    ImGui::Image((ImTextureID)(intptr_t)white, ImVec2(64, 64));
+
+                    ImGui::Text("black");
+                    auto black{ m_texture_manager.Get("black") };
+                    ImGui::Image((ImTextureID)(intptr_t)black, ImVec2(64, 64));
+
+                    ImGui::Text("red");
+                    auto red{ m_texture_manager.Get("red") };
+                    ImGui::Image((ImTextureID)(intptr_t)red, ImVec2(64, 64));
                 }
                 ImGui::End();
             }

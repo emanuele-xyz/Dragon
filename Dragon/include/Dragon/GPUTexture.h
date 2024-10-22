@@ -18,6 +18,7 @@ namespace Dragon
         GPUTexture& operator=(const GPUTexture&) = delete;
         GPUTexture& operator=(GPUTexture&&) noexcept = default;
     public:
+        ID3D11ShaderResourceView* GetSRV() { return m_texture_srv.Get(); }
         ID3D11ShaderResourceView** GetAddressOfSRV() { return m_texture_srv.GetAddressOf(); }
     private:
         wrl::ComPtr<ID3D11Texture2D> m_texture;

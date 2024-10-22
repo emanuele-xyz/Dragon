@@ -7,8 +7,11 @@
 #include <Dragon/ImGuiHandle.h>
 #include <Dragon/AppSettings.h>
 #include <Dragon/AppData.h>
+#include <Dragon/MeshManager.h>
+#include <Dragon/TextureManager.h>
 #include <Dragon/Project.h>
 
+#include <vector>
 #include <string>
 #include <memory>
 
@@ -35,6 +38,10 @@ namespace Dragon
         ImGuiHandle m_imgui;
         AppSettings m_settings;
         AppData m_data;
+        MeshManager m_mesh_manager;
+        TextureManager m_texture_manager;
+        std::vector<wrl::ComPtr<ID3D11VertexShader>> m_vertex_shaders;
+        std::vector<wrl::ComPtr<ID3D11PixelShader>> m_pixel_shaders;
         std::unique_ptr<Project> m_project;
         // ----------------------------
         bool m_show_message_window;
