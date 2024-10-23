@@ -24,8 +24,8 @@ namespace Dragon
         , m_data{}
         , m_mesh_manager{}
         , m_texture_manager{}
-        , m_vertex_shaders{}
-        , m_pixel_shaders{}
+        , m_vertex_shader_manager{}
+        , m_pixel_shader_manager{}
         , m_project{}
         , m_show_message_window{ true } // TODO: make false
         , m_last_message{ "Hello! This is a message sent from Dragon!" } // TODO: make empty
@@ -215,7 +215,8 @@ namespace Dragon
                                 if (std::filesystem::is_empty(m_new_project_path))
                                 {
                                     m_last_message = std::format("Creating new project in folder '{}'!", m_new_project_path);
-                                    m_project = std::make_unique<Project>(m_new_project_path, true);
+                                    ProjectResourceManagers mgrs{ m_mesh_manager, m_texture_manager, m_vertex_shader_manager, m_pixel_shader_manager };
+                                    m_project = std::make_unique<Project>(m_new_project_path, mgrs, true);
                                 }
                                 else
                                 {
@@ -242,7 +243,8 @@ namespace Dragon
                             if (std::filesystem::exists(path))
                             {
                                 m_last_message = std::format("Opening project in folder '{}'!", m_open_project_path);
-                                m_project = std::make_unique<Project>(m_open_project_path);
+                                ProjectResourceManagers mgrs{ m_mesh_manager, m_texture_manager, m_vertex_shader_manager, m_pixel_shader_manager };
+                                m_project = std::make_unique<Project>(m_open_project_path, mgrs);
                             }
                             else
                             {
