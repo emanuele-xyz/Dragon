@@ -124,8 +124,6 @@ namespace Dragon
                         if (ImGui::MenuItem("Open"))
                         {
                             auto path{ Win32Utils::BrowseForFile() };
-                            int kek{};
-                            kek += 1;
                         }
                         if (ImGui::MenuItem("Delete"))
                         {
