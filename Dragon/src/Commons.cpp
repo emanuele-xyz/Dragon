@@ -22,4 +22,19 @@ namespace Dragon
         bool is_directory{ std::filesystem::is_directory(path) };
         return is_directory && std::filesystem::is_empty(path);
     }
+
+    std::vector<char> LoadFile(const std::filesystem::path& path)
+    {
+        Dragon_Check(std::filesystem::exists(path) && std::filesystem::is_regular_file(path));
+
+        std::ifstream file{ path, std::ios::binary };
+        Dragon_Check(file);
+
+        auto size{ std::filesystem::file_size(path) };
+        std::vector<char> buffer(size);
+        file.read(buffer.data(), size);
+        Dragon_Check(file);
+
+        return buffer;
+    }
 }

@@ -2,6 +2,8 @@
 
 #include <stdexcept>
 #include <string>
+#include <vector>
+#include <filesystem>
 
 #define DRAGON_PROJECT_FILE_NAME "dragon.xml"
 
@@ -30,4 +32,6 @@ namespace Dragon
     std::wstring GetWStrFromStr(const std::string& str);
 
     bool IsEmptyFolder(const std::string& path);
+
+    std::vector<char> LoadFile(const std::filesystem::path& path);
 }

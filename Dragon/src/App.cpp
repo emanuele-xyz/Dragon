@@ -27,6 +27,21 @@ namespace Dragon
     {
     }
 
+    struct ObjectDesc
+    {
+        Vector3 position;
+        Quaternion rotation;
+        Vector3 scale;
+        std::string mesh;
+        std::string texture;
+        bool is_lit;
+    };
+
+    struct LevelDesc
+    {
+        std::vector<ObjectDesc> objects;
+    };
+
     void App::Run()
     {
         // NOTE: register default meshes
