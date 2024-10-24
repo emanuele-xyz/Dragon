@@ -12,7 +12,6 @@ namespace Dragon
     {
     public:
         static CPUMesh LoadFromFile(const std::string& path);
-        static CPUMesh Cube();
     public:
         CPUMesh(unsigned int vertex_count, unsigned int index_count);
         ~CPUMesh() = default;

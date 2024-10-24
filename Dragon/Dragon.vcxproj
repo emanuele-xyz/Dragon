@@ -126,6 +126,7 @@
     <ClCompile Include="src\Win32Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Dragon\AppContext.h" />
     <ClInclude Include="include\Dragon\Commons.h" />
     <ClInclude Include="include\Dragon\ConstantBuffers.h" />
     <ClInclude Include="include\Dragon\CPUMesh.h" />
