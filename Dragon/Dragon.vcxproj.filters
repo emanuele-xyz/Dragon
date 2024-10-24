@@ -54,16 +54,7 @@
     <ClCompile Include="src\GPUTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ProjectSettings.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\GfxResources.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\MeshManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\TextureManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -107,9 +98,6 @@
     <ClInclude Include="include\Dragon\GPUTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Dragon\ProjectSettings.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Dragon\GfxResources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -123,12 +111,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Dragon\hlsl\UnlitPSRelease.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Dragon\MeshManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Dragon\TextureManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Dragon\ConstantBuffers.h">
