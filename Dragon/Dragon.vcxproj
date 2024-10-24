@@ -116,6 +116,7 @@
     <ClCompile Include="src\GPUMesh.cpp" />
     <ClCompile Include="src\GPUTexture.cpp" />
     <ClCompile Include="src\ImGuiHandle.cpp" />
+    <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\pch.cpp">
@@ -141,6 +142,7 @@
     <ClInclude Include="include\Dragon\hlsl\UnlitPSDebug.h" />
     <ClInclude Include="include\Dragon\hlsl\UnlitPSRelease.h" />
     <ClInclude Include="include\Dragon\ImGuiHandle.h" />
+    <ClInclude Include="include\Dragon\Input.h" />
     <ClInclude Include="include\Dragon\Math.h" />
     <ClInclude Include="include\Dragon\Mesh.h" />
     <ClInclude Include="include\Dragon\pch.h" />

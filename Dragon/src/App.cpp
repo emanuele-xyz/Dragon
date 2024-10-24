@@ -16,6 +16,7 @@ namespace Dragon
         : m_context{}
         , m_window_class{ "dragon_window_class" }
         , m_window{ m_window_class.GetName(), "Dragon", 1280, 720, WS_OVERLAPPEDWINDOW } // TODO: hardcoded
+        , m_input{}
         , m_gfx{ m_window.GetRawHandle() }
         , m_gfx_resources{ m_gfx.GetDevice() }
         , m_imgui{ m_window.GetRawHandle(), m_gfx.GetDevice(), m_gfx.GetContext() }
@@ -83,6 +84,8 @@ namespace Dragon
                         m_gfx.Resize();
                     }
                 }
+
+                m_input.Update(window_messages);
             }
 
             auto [client_w, client_h] { m_window.GetClientDimensionsFloat() };
@@ -161,22 +164,38 @@ namespace Dragon
 
             // NOTE: render ui
             m_imgui.NewFrame();
-
-            ImGui::Begin("Graphics Settings");
             {
-                ImGui::Checkbox("V-Sync", &m_context.vsync);
-            }
-            ImGui::End();
+                ImGui::Begin("Graphics Settings");
+                {
+                    ImGui::Checkbox("V-Sync", &m_context.vsync);
+                }
+                ImGui::End();
 
-            ImGui::Begin("Time Data");
-            {
-                ImGui::Text("Time since start (sec): %.1f", m_context.time_since_start_sec);
-                ImGui::Text("Last frame dt (sec): %.6f", m_context.last_frame_dt_sec);
-                ImGui::Text("Last frame dt (msec): %.3f", m_context.last_frame_dt_msec);
-                ImGui::Text("Last FPS: %.1f", m_context.last_fps);
-            }
-            ImGui::End();
+                ImGui::Begin("Time Data");
+                {
+                    ImGui::Text("Time since start (sec): %.1f", m_context.time_since_start_sec);
+                    ImGui::Text("Last frame dt (sec): %.6f", m_context.last_frame_dt_sec);
+                    ImGui::Text("Last frame dt (msec): %.3f", m_context.last_frame_dt_msec);
+                    ImGui::Text("Last FPS: %.1f", m_context.last_fps);
+                }
+                ImGui::End();
 
+                ImGui::Begin("Mouse");
+                {
+                    const auto& mouse{ m_input.GetMouse() };
+                    ImGui::Text("Wheel: %d", mouse.wheel);
+                    ImGui::Text("Position: (%d,%d)", mouse.x, mouse.y);
+                    ImGui::Text("LMR: %d%d%d", mouse.left, mouse.middle, mouse.right);
+                }
+                ImGui::End();
+
+                ImGui::Begin("Keyboard");
+                {
+                    const auto& keyboard{ m_input.GetKeyboard() };
+                    ImGui::Text("WASD: %d%d%d%d", keyboard.key['W'], keyboard.key['A'], keyboard.key['S'], keyboard.key['D']);
+                }
+                ImGui::End();
+            }
             m_imgui.Render();
 
             m_gfx.Present(m_context.vsync);

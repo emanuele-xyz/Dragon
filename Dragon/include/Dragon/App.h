@@ -2,6 +2,7 @@
 
 #include <Dragon/AppContext.h>
 #include <Dragon/Win32Utils.h>
+#include <Dragon/Input.h>
 #include <Dragon/Gfx.h>
 #include <Dragon/GfxResources.h>
 #include <Dragon/ImGuiHandle.h>
@@ -23,6 +24,7 @@ namespace Dragon
         AppContext m_context;
         Win32Utils::WindowClass m_window_class;
         Win32Utils::WindowHandle m_window;
+        Input m_input;
         Gfx m_gfx;
         GfxResources m_gfx_resources;
         ImGuiHandle m_imgui;
