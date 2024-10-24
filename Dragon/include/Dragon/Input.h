@@ -16,9 +16,12 @@ namespace Dragon
         int wheel;
         int x;
         int y;
+        // TODO: add delta
         bool left;
         bool middle;
         bool right;
+        // TODO: make buttons array + enum
+        // TODO: make buttons action type array with enums nothing, press, release, hold DRAGON_ACTION_NONE, DRAGON_ACTION_PRESS, DRAGON_ACTION_RELEASE, DRAGON_ACTION_HOLD 
     };
 
     struct InputState
@@ -37,7 +40,6 @@ namespace Dragon
         Input& operator=(const Input&) = delete;
         Input& operator=(Input&&) noexcept = delete;
     public:
-        void NewFrame();
         void Update(std::span<const MSG> messages);
         const KeyboardState& GetKeyboard() const { return m_states[m_state_idx].keyboard; }
         const MouseState& GetMouse() const { return m_states[m_state_idx].mouse; }
