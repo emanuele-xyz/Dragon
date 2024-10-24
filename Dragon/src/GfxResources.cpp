@@ -1,31 +1,34 @@
 #include <Dragon/pch.h>
 #include <Dragon/GfxResources.h>
+#include <Dragon/ConstantBuffers.h>
 
 namespace Dragon
-{  
-    static D3D11_INPUT_ELEMENT_DESC s_input_element_desc[]
-    {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-    };
-
+{
     GfxResources::GfxResources(ID3D11Device* device)
         : m_device{ device }
     {
-        #if defined(_DEBUG)
-        #include <Dragon/hlsl/DefaultVSDebug.h> // for vs_default_bytecode
-        #include <Dragon/hlsl/UnlitPSDebug.h> // for ps_unlit_bytecode
-        #else
-        #include <Dragon/hlsl/DefaultVSRelease.h> // for vs_default_bytecode
-        #include <Dragon/hlsl/UnlitPSRelease.h> // for ps_unlit_bytecode
-        #endif
+        // NOTE: shaders and input layout
+        {
+            #if defined(_DEBUG)
+            #include <Dragon/hlsl/DefaultVSDebug.h> // for vs_default_bytecode
+            #include <Dragon/hlsl/UnlitPSDebug.h> // for ps_unlit_bytecode
+            #else
+            #include <Dragon/hlsl/DefaultVSRelease.h> // for vs_default_bytecode
+            #include <Dragon/hlsl/UnlitPSRelease.h> // for ps_unlit_bytecode
+            #endif
 
-        m_vs_default = D3D11Utils::LoadVertexShaderFromBytecode(m_device, vs_default_bytecode, Dragon_CountOf(vs_default_bytecode));
-        m_ps_unlit = D3D11Utils::LoadPixelShaderFromBytecode(m_device, ps_unlit_bytecode, Dragon_CountOf(ps_unlit_bytecode));
-        m_input_layout = D3D11Utils::CreateInputLayout(
-            m_device, s_input_element_desc, Dragon_CountOf(s_input_element_desc), vs_default_bytecode, Dragon_CountOf(vs_default_bytecode)
-        );
+            m_vs_default = D3D11Utils::LoadVertexShaderFromBytecode(m_device, vs_default_bytecode, Dragon_CountOf(vs_default_bytecode));
+            m_ps_unlit = D3D11Utils::LoadPixelShaderFromBytecode(m_device, ps_unlit_bytecode, Dragon_CountOf(ps_unlit_bytecode));
+
+            D3D11_INPUT_ELEMENT_DESC desc[]
+            {
+                { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+                { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+                { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            };
+            m_input_layout = D3D11Utils::CreateInputLayout(m_device, desc, Dragon_CountOf(desc), vs_default_bytecode, Dragon_CountOf(vs_default_bytecode));
+        }
+
 
         // NOTE: default rasterizer state
         {
@@ -80,6 +83,32 @@ namespace Dragon
             desc.MaxLOD = D3D11_FLOAT32_MAX;
 
             Dragon_CheckHR(m_device->CreateSamplerState(&desc, m_sampler_state_default.ReleaseAndGetAddressOf()));
+        }
+
+        // TODO: camera constants
+        {
+            D3D11_BUFFER_DESC desc{};
+            desc.ByteWidth = sizeof(CBCamera);
+            desc.Usage = D3D11_USAGE_DYNAMIC;
+            desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+            desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+            desc.MiscFlags = 0;
+            desc.StructureByteStride = 0;
+            Dragon_CheckHR(m_device->CreateBuffer(&desc, nullptr, m_cb_camera.ReleaseAndGetAddressOf()));
+            m_constant_buffers[0] = m_cb_camera.Get();
+        }
+
+        // NOTE: object constants
+        {
+            D3D11_BUFFER_DESC desc{};
+            desc.ByteWidth = sizeof(CBObject);
+            desc.Usage = D3D11_USAGE_DYNAMIC;
+            desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+            desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+            desc.MiscFlags = 0;
+            desc.StructureByteStride = 0;
+            Dragon_CheckHR(m_device->CreateBuffer(&desc, nullptr, m_cb_object.ReleaseAndGetAddressOf()));
+            m_constant_buffers[1] = m_cb_object.Get();
         }
     }
 }
