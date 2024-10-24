@@ -27,47 +27,32 @@ namespace Dragon
     {
     }
 
-    struct ObjectDesc
+    struct Object
     {
-        Vector3 position;
-        Quaternion rotation;
-        Vector3 scale;
-        std::string mesh;
-        std::string texture;
-        bool is_lit;
-    };
-
-    struct LevelDesc
-    {
-        std::vector<ObjectDesc> objects;
+        Vector3 position{ Vector3::Zero };
+        Quaternion rotation{ Quaternion::Identity };
+        Vector3 scale{ Vector3::One };
+        size_t mesh{};
+        size_t texture{};
     };
 
     void App::Run()
     {
-        // NOTE: register default meshes
-        m_mesh_manager.RegisterMesh(GPUMesh::FromCPUMesh(m_gfx.GetDevice(), CPUMesh::Cube()), "cube");
+        std::vector<GPUMesh> meshes{};
+        meshes.emplace_back(GPUMesh::FromCPUMesh(m_gfx.GetDevice(), CPUMesh::Cube()));
 
-        // NOTE: register default textures
-        m_texture_manager.RegisterTexture(GPUTexture::FromCPUTexture(m_gfx.GetDevice(), CPUTexture::Color(0, 0, 0, 255)), "black");
-        m_texture_manager.RegisterTexture(GPUTexture::FromCPUTexture(m_gfx.GetDevice(), CPUTexture::Color(255, 255, 255, 255)), "white");
-        m_texture_manager.RegisterTexture(GPUTexture::FromCPUTexture(m_gfx.GetDevice(), CPUTexture::Color(255, 0, 0, 255)), "red");
+        std::vector<GPUTexture> textures{};
+        textures.emplace_back(GPUTexture::FromCPUTexture(m_gfx.GetDevice(), CPUTexture::LoadFromFile("textures/lena.png")));
 
-        GPUMesh dragon_mesh{};
+        std::vector<Object> objects{};
         {
-            auto tmp{ CPUMesh::LoadFromFile("../../assets/StanfordDragon.obj") };
-            dragon_mesh = GPUMesh::FromCPUMesh(m_gfx.GetDevice(), tmp);
+            Object obj{};
+            objects.emplace_back(obj);
         }
-
-        // TODO: use texture manager
-        GPUTexture lena_texture{};
         {
-            auto tmp{ CPUTexture::LoadFromFile("../../assets/lena.png") };
-            lena_texture = GPUTexture::FromCPUTexture(m_gfx.GetDevice(), tmp);
-        }
-        GPUTexture dragon_texture{};
-        {
-            auto tmp{ CPUTexture::LoadFromFile("../../assets/StanfordDragon_albedo.jpeg") };
-            dragon_texture = GPUTexture::FromCPUTexture(m_gfx.GetDevice(), tmp);
+            Object obj{};
+            obj.position = { 3.0f, 3.0f, 0.0f };
+            objects.emplace_back(obj);
         }
 
         while (m_is_running)
@@ -95,7 +80,6 @@ namespace Dragon
 
             auto [client_w, client_h] { m_window.GetClientDimensionsFloat() };
 
-            // TODO: move to renderer
             // NOTE: render scene
             {
                 float aspect{ client_w / client_h };
@@ -104,26 +88,8 @@ namespace Dragon
                 {
                     D3D11Utils::SubresourceMapping subres_mapping{ m_gfx.GetContext(), m_gfx_resources.GetCBCamera(), 0, D3D11_MAP_WRITE_DISCARD, 0 };
                     auto constants{ static_cast<CBCamera*>(subres_mapping.GetSubresource().pData) };
-                    constants->view = Matrix::CreateLookAt({ -1.0f, 2.0f, 2.0f }, Vector3::Zero, Vector3::Up);
+                    constants->view = Matrix::CreateLookAt({ 10.0f, 10.f, 10.0f }, Vector3::Zero, Vector3::Up);
                     constants->projection = Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(45.0f), aspect, 0.01f, 100.0f);
-                }
-
-                // NOTE: update base object constants
-                {
-                    D3D11Utils::SubresourceMapping subres_mapping{ m_gfx.GetContext(), m_gfx_resources.GetCBObject(), 0, D3D11_MAP_WRITE_DISCARD, 0 };
-                    auto constants{ static_cast<CBObject*>(subres_mapping.GetSubresource().pData) };
-                    Matrix translate{ Matrix::CreateTranslation(Vector3::Zero) };
-                    Matrix rotate_x{ Matrix::CreateRotationX(DirectX::XMConvertToRadians(0.0f)) };
-                    Matrix rotate_y{ Matrix::CreateRotationY(DirectX::XMConvertToRadians(0.0f)) };
-                    Matrix rotate_z{ Matrix::CreateRotationZ(DirectX::XMConvertToRadians(0.0f)) };
-                    Matrix rotate{ rotate_x * rotate_y * rotate_z };
-                    Matrix scale{ Matrix::CreateScale(Vector3::One) };
-                    Matrix model{ scale * rotate * translate };
-                    Matrix normal{ scale * rotate };
-                    normal.Invert();
-                    normal.Transpose();
-                    constants->model = model;
-                    constants->normal = normal;
                 }
 
                 auto rtv{ m_gfx.GetBackBufferRTV() };
@@ -146,23 +112,44 @@ namespace Dragon
                 m_gfx.GetContext()->OMSetRenderTargets(1, &rtv, dsv);
                 m_gfx.GetContext()->OMSetDepthStencilState(m_gfx_resources.GetDSSDefault(), 0);
                 m_gfx.GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-                m_gfx.GetContext()->IASetIndexBuffer(dragon_mesh.indices.Get(), DXGI_FORMAT_R32_UINT, 0);
-                m_gfx.GetContext()->IASetVertexBuffers(
-                    0, static_cast<UINT>(Mesh::VertexBufferIdx::Count),
-                    dragon_mesh.vertex_buffer_pointers, dragon_mesh.vertex_buffer_strides, dragon_mesh.vertex_buffer_offsets
-                );
                 m_gfx.GetContext()->IASetInputLayout(m_gfx_resources.GetInputLayout());
                 m_gfx.GetContext()->VSSetShader(m_gfx_resources.GetVSDefault(), nullptr, 0);
                 m_gfx.GetContext()->VSSetConstantBuffers(0, m_gfx_resources.GetConstantBuffersCount(), m_gfx_resources.GetConstantBuffers());
                 m_gfx.GetContext()->PSSetShader(m_gfx_resources.GetPSUnlit(), nullptr, 0);
                 m_gfx.GetContext()->PSSetConstantBuffers(0, m_gfx_resources.GetConstantBuffersCount(), m_gfx_resources.GetConstantBuffers());
-                m_gfx.GetContext()->PSSetShaderResources(0, 1, dragon_texture.GetAddressOfSRV());
                 {
                     ID3D11SamplerState* sampler_states[]{ m_gfx_resources.GetSSDefault() };
                     m_gfx.GetContext()->PSSetSamplers(0, Dragon_CountOf(sampler_states), sampler_states);
                 }
 
-                m_gfx.GetContext()->DrawIndexed(dragon_mesh.index_count, 0, 0);
+                for (const auto& obj : objects)
+                {
+                    // NOTE: update object constants
+                    {
+                        D3D11Utils::SubresourceMapping subres_mapping{ m_gfx.GetContext(), m_gfx_resources.GetCBObject(), 0, D3D11_MAP_WRITE_DISCARD, 0 };
+                        auto constants{ static_cast<CBObject*>(subres_mapping.GetSubresource().pData) };
+                        Matrix translate{ Matrix::CreateTranslation(obj.position) };
+                        Matrix rotate{ Matrix::CreateFromQuaternion(obj.rotation) };
+                        Matrix scale{ Matrix::CreateScale(obj.scale) };
+                        Matrix model{ scale * rotate * translate };
+                        Matrix normal{ scale * rotate };
+                        normal.Invert();
+                        normal.Transpose();
+                        constants->model = model;
+                        constants->normal = normal;
+                    }
+
+                    auto& mesh{ meshes[obj.mesh] };
+                    auto& texture{ textures[obj.mesh] };
+
+                    m_gfx.GetContext()->IASetIndexBuffer(mesh.indices.Get(), DXGI_FORMAT_R32_UINT, 0);
+                    m_gfx.GetContext()->IASetVertexBuffers(
+                        0, static_cast<UINT>(Mesh::VertexBufferIdx::Count),mesh.vertex_buffer_pointers, mesh.vertex_buffer_strides, mesh.vertex_buffer_offsets
+                    );
+                    m_gfx.GetContext()->PSSetShaderResources(0, 1, texture.GetAddressOfSRV());
+
+                    m_gfx.GetContext()->DrawIndexed(mesh.index_count, 0, 0);
+                }
             }
 
             // NOTE: render ui
