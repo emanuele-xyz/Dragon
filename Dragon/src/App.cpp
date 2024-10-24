@@ -17,7 +17,7 @@ namespace Dragon
         : m_is_running{ true }
         , m_gfx_settings{}
         , m_window_class{ "dragon_window_class" }
-        , m_window{ m_window_class.GetName(), "Dragon", 1280, 720, WS_OVERLAPPEDWINDOW }
+        , m_window{ m_window_class.GetName(), "Dragon", 1280, 720, WS_OVERLAPPEDWINDOW } // TODO: hardcoded
         , m_gfx{ m_window.GetRawHandle() }
         , m_gfx_resources{ m_gfx.GetDevice() }
         , m_imgui{ m_window.GetRawHandle(), m_gfx.GetDevice(), m_gfx.GetContext() }
