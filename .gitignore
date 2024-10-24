@@ -370,3 +370,6 @@ FodyWeavers.xsd
 
 # assets folder
 assets
+
+# current working directory folder
+cwd
