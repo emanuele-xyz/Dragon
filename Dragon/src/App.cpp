@@ -4,11 +4,10 @@
 #include <imgui.h>
 
 #include <Dragon/Math.h> // TODO: to be removed
-#include <Dragon/CPUMesh.h> // TODO: to be removed
-#include <Dragon/GPUMesh.h> // TODO: to be removed
 #include <Dragon/CPUTexture.h> // TODO: to be removed
 #include <Dragon/GPUTexture.h> // TODO: to be removed
 #include <Dragon/ConstantBuffers.h> // TODO: to be removed?
+#include <Dragon/Mesh.h> // TODO: to be removed?
 
 namespace Dragon
 {
@@ -34,10 +33,10 @@ namespace Dragon
 
     void App::Run()
     {
-        std::vector<GPUMesh> meshes{};
-        meshes.emplace_back(GPUMesh::FromCPUMesh(m_gfx.GetDevice(), CPUMesh::LoadFromFile("meshes/cube.obj")));
-        meshes.emplace_back(GPUMesh::FromCPUMesh(m_gfx.GetDevice(), CPUMesh::LoadFromFile("meshes/plane.obj")));
-        meshes.emplace_back(GPUMesh::FromCPUMesh(m_gfx.GetDevice(), CPUMesh::LoadFromFile("meshes/capsule.obj")));
+        std::vector<Mesh> meshes{};
+        meshes.emplace_back(m_gfx.GetDevice(), "meshes/cube.obj");
+        meshes.emplace_back(m_gfx.GetDevice(), "meshes/plane.obj");
+        meshes.emplace_back(m_gfx.GetDevice(), "meshes/capsule.obj");
 
         std::vector<GPUTexture> textures{};
         textures.emplace_back(GPUTexture::FromCPUTexture(m_gfx.GetDevice(), CPUTexture::LoadFromFile("textures/lena.png")));
@@ -152,13 +151,11 @@ namespace Dragon
                     auto& mesh{ meshes[obj.mesh] };
                     auto& texture{ textures[obj.texture] };
 
-                    m_gfx.GetContext()->IASetIndexBuffer(mesh.indices.Get(), DXGI_FORMAT_R32_UINT, 0);
-                    m_gfx.GetContext()->IASetVertexBuffers(
-                        0, static_cast<UINT>(Mesh::VertexBufferIdx::Count), mesh.vertex_buffer_pointers, mesh.vertex_buffer_strides, mesh.vertex_buffer_offsets
-                    );
+                    m_gfx.GetContext()->IASetIndexBuffer(mesh.GetIndices(), DXGI_FORMAT_R32_UINT, 0);
+                    m_gfx.GetContext()->IASetVertexBuffers(0, mesh.GetVertexBufferCount(), mesh.GetVertexBuffers(), mesh.GetStrides(), mesh.GetOffsets());
                     m_gfx.GetContext()->PSSetShaderResources(0, 1, texture.GetAddressOfSRV());
 
-                    m_gfx.GetContext()->DrawIndexed(mesh.index_count, 0, 0);
+                    m_gfx.GetContext()->DrawIndexed(mesh.GetIndexCount() , 0, 0);
                 }
             }
 
