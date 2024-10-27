@@ -149,7 +149,7 @@ namespace Dragon
                         constants->normal = normal;
                     }
 
-                    auto mesh{ obj.mesh.Get() };
+                    auto mesh{ obj.mesh };
                     auto& texture{ textures[obj.texture] };
 
                     m_gfx.GetContext()->IASetIndexBuffer(mesh->GetIndices(), DXGI_FORMAT_R32_UINT, 0);

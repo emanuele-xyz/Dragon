@@ -14,7 +14,7 @@ namespace Dragon
     {
     public:
         MeshMgr(ID3D11Device* device);
-        ~MeshMgr() {} /* = default*/; // TODO: use =default
+        ~MeshMgr() = default;
         MeshMgr(const MeshMgr&) = delete;
         MeshMgr(MeshMgr&&) noexcept = delete;
         MeshMgr& operator=(const MeshMgr&) = delete;
