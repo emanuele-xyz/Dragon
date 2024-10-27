@@ -4,7 +4,6 @@
 #include <imgui.h>
 
 #include <Dragon/Math.h> // TODO: to be removed
-#include <Dragon/ConstantBuffers.h> // TODO: to be removed?
 #include <Dragon/Mesh.h> // TODO: to be removed?
 #include <Dragon/Texture.h> // TODO: to be removed?
 
@@ -16,8 +15,8 @@ namespace Dragon
         , m_window{ m_window_class.GetName(), "Dragon", 1280, 720, WS_OVERLAPPEDWINDOW } // TODO: hardcoded
         , m_input{}
         , m_gfx{ m_window.GetRawHandle() }
-        , m_gfx_resources{ m_gfx.GetDevice() }
         , m_imgui{ m_window.GetRawHandle(), m_gfx.GetDevice(), m_gfx.GetContext() }
+        , m_renderer{ m_gfx.GetDevice(), m_gfx.GetContext() }
         , m_mesh_mgr{ m_gfx.GetDevice() }
         , m_texture_mgr{ m_gfx.GetDevice() }
     {
@@ -89,75 +88,25 @@ namespace Dragon
                 m_input.Update(window_messages);
             }
 
-            auto [client_w, client_h] { m_window.GetClientDimensionsFloat() };
-
-            // NOTE: render scene
+            // NOTE: render
             {
-                float aspect{ client_w / client_h };
+                auto rtv{ m_gfx.GetBackBufferRTV() };
+                auto dsv{ m_gfx.GetBackBufferDSV() };
+                auto [client_w, client_h] { m_window.GetClientDimensionsFloat() };
+
+                m_renderer.NewFrame(rtv, dsv, client_w, client_h);
 
                 // NOTE: update camera constants
                 {
-                    D3D11Utils::SubresourceMapping subres_mapping{ m_gfx.GetContext(), m_gfx_resources.GetCBCamera(), 0, D3D11_MAP_WRITE_DISCARD, 0 };
-                    auto constants{ static_cast<CBCamera*>(subres_mapping.GetSubresource().pData) };
-                    constants->view = Matrix::CreateLookAt({ 10.0f, 10.f, 10.0f }, Vector3::Zero, Vector3::Up);
-                    constants->projection = Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(45.0f), aspect, 0.01f, 100.0f);
-                }
-
-                auto rtv{ m_gfx.GetBackBufferRTV() };
-                auto dsv{ m_gfx.GetBackBufferDSV() };
-
-                float clear_color[4]{ 1.0f, 0.0f, 1.0f, 1.0f };
-                m_gfx.GetContext()->ClearRenderTargetView(rtv, clear_color);
-                m_gfx.GetContext()->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-                D3D11_VIEWPORT viewport{};
-                viewport.TopLeftX = 0.0f;
-                viewport.TopLeftY = 0.0f;
-                viewport.Width = client_w;
-                viewport.Height = client_h;
-                viewport.MinDepth = 0.0f;
-                viewport.MaxDepth = 1.0f;
-
-                m_gfx.GetContext()->RSSetViewports(1, &viewport);
-                m_gfx.GetContext()->RSSetState(m_gfx_resources.GetRSDefault());
-                m_gfx.GetContext()->OMSetRenderTargets(1, &rtv, dsv);
-                m_gfx.GetContext()->OMSetDepthStencilState(m_gfx_resources.GetDSSDefault(), 0);
-                m_gfx.GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-                m_gfx.GetContext()->IASetInputLayout(m_gfx_resources.GetInputLayout());
-                m_gfx.GetContext()->VSSetShader(m_gfx_resources.GetVSDefault(), nullptr, 0);
-                m_gfx.GetContext()->VSSetConstantBuffers(0, m_gfx_resources.GetConstantBuffersCount(), m_gfx_resources.GetConstantBuffers());
-                m_gfx.GetContext()->PSSetShader(m_gfx_resources.GetPSUnlit(), nullptr, 0);
-                m_gfx.GetContext()->PSSetConstantBuffers(0, m_gfx_resources.GetConstantBuffersCount(), m_gfx_resources.GetConstantBuffers());
-                {
-                    ID3D11SamplerState* sampler_states[]{ m_gfx_resources.GetSSDefault() };
-                    m_gfx.GetContext()->PSSetSamplers(0, Dragon_CountOf(sampler_states), sampler_states);
+                    float aspect{ client_w / client_h };
+                    auto view{ Matrix::CreateLookAt({ 10.0f, 10.f, 10.0f }, Vector3::Zero, Vector3::Up) };
+                    auto projection{ Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(45.0f), aspect, 0.01f, 100.0f) };
+                    m_renderer.SetCamera(view, projection);
                 }
 
                 for (auto& obj : objects)
                 {
-                    // NOTE: update object constants
-                    {
-                        D3D11Utils::SubresourceMapping subres_mapping{ m_gfx.GetContext(), m_gfx_resources.GetCBObject(), 0, D3D11_MAP_WRITE_DISCARD, 0 };
-                        auto constants{ static_cast<CBObject*>(subres_mapping.GetSubresource().pData) };
-                        Matrix translate{ Matrix::CreateTranslation(obj.position) };
-                        Matrix rotate{ Matrix::CreateFromQuaternion(obj.rotation) };
-                        Matrix scale{ Matrix::CreateScale(obj.scale) };
-                        Matrix model{ scale * rotate * translate };
-                        Matrix normal{ scale * rotate };
-                        normal.Invert();
-                        normal.Transpose();
-                        constants->model = model;
-                        constants->normal = normal;
-                    }
-
-                    auto mesh{ obj.mesh };
-                    auto texture{ obj.texture };
-
-                    m_gfx.GetContext()->IASetIndexBuffer(mesh->GetIndices(), DXGI_FORMAT_R32_UINT, 0);
-                    m_gfx.GetContext()->IASetVertexBuffers(0, mesh->GetVertexBufferCount(), mesh->GetVertexBuffers(), mesh->GetStrides(), mesh->GetOffsets());
-                    m_gfx.GetContext()->PSSetShaderResources(0, 1, texture->GetAddressOfSRV());
-
-                    m_gfx.GetContext()->DrawIndexed(mesh->GetIndexCount(), 0, 0);
+                    m_renderer.Render(obj.position, obj.rotation, obj.scale, obj.mesh, obj.texture);
                 }
             }
 

@@ -42,7 +42,7 @@
     <ClCompile Include="src\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GfxResources.cpp">
+    <ClCompile Include="src\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Input.cpp">
@@ -92,7 +92,7 @@
     <ClInclude Include="include\Dragon\Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Dragon\GfxResources.h">
+    <ClInclude Include="include\Dragon\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Dragon\hlsl\DefaultVSDebug.h">
@@ -105,9 +105,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Dragon\hlsl\UnlitPSRelease.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Dragon\ConstantBuffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Dragon\AppContext.h">

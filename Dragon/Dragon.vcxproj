@@ -121,7 +121,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\GfxResources.cpp" />
+    <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\TextureMgr.cpp" />
     <ClCompile Include="src\TextureRef.cpp" />
@@ -130,7 +130,6 @@
   <ItemGroup>
     <ClInclude Include="include\Dragon\AppContext.h" />
     <ClInclude Include="include\Dragon\Commons.h" />
-    <ClInclude Include="include\Dragon\ConstantBuffers.h" />
     <ClInclude Include="include\Dragon\D3D11Utils.h" />
     <ClInclude Include="include\Dragon\App.h" />
     <ClInclude Include="include\Dragon\Gfx.h" />
@@ -145,7 +144,7 @@
     <ClInclude Include="include\Dragon\MeshMgr.h" />
     <ClInclude Include="include\Dragon\MeshRef.h" />
     <ClInclude Include="include\Dragon\pch.h" />
-    <ClInclude Include="include\Dragon\GfxResources.h" />
+    <ClInclude Include="include\Dragon\Renderer.h" />
     <ClInclude Include="include\Dragon\Texture.h" />
     <ClInclude Include="include\Dragon\TextureMgr.h" />
     <ClInclude Include="include\Dragon\TextureRef.h" />
