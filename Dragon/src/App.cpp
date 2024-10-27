@@ -4,10 +4,9 @@
 #include <imgui.h>
 
 #include <Dragon/Math.h> // TODO: to be removed
-#include <Dragon/CPUTexture.h> // TODO: to be removed
-#include <Dragon/GPUTexture.h> // TODO: to be removed
 #include <Dragon/ConstantBuffers.h> // TODO: to be removed?
 #include <Dragon/Mesh.h> // TODO: to be removed?
+#include <Dragon/Texture.h> // TODO: to be removed?
 
 namespace Dragon
 {
@@ -38,9 +37,9 @@ namespace Dragon
         auto plane_ref{ m_mesh_mgr.Load("meshes/plane.obj") };
         auto capsule_ref{ m_mesh_mgr.Load("meshes/capsule.obj") };
 
-        std::vector<GPUTexture> textures{};
-        textures.emplace_back(GPUTexture::FromCPUTexture(m_gfx.GetDevice(), CPUTexture::LoadFromFile("textures/lena.png")));
-        textures.emplace_back(GPUTexture::FromCPUTexture(m_gfx.GetDevice(), CPUTexture::LoadFromFile("textures/proto_floor.png")));
+        std::vector<std::unique_ptr<Texture>> textures{};
+        textures.emplace_back(std::make_unique<Texture>(m_gfx.GetDevice(), "textures/lena.png"));
+        textures.emplace_back(std::make_unique<Texture>(m_gfx.GetDevice(), "textures/proto_floor.png"));
 
         std::vector<Object> objects{};
         {
@@ -154,7 +153,7 @@ namespace Dragon
 
                     m_gfx.GetContext()->IASetIndexBuffer(mesh->GetIndices(), DXGI_FORMAT_R32_UINT, 0);
                     m_gfx.GetContext()->IASetVertexBuffers(0, mesh->GetVertexBufferCount(), mesh->GetVertexBuffers(), mesh->GetStrides(), mesh->GetOffsets());
-                    m_gfx.GetContext()->PSSetShaderResources(0, 1, texture.GetAddressOfSRV());
+                    m_gfx.GetContext()->PSSetShaderResources(0, 1, texture->GetAddressOfSRV());
 
                     m_gfx.GetContext()->DrawIndexed(mesh->GetIndexCount(), 0, 0);
                 }

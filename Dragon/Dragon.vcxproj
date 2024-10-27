@@ -108,11 +108,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Commons.cpp" />
-    <ClCompile Include="src\CPUTexture.cpp" />
     <ClCompile Include="src\D3D11Utils.cpp" />
     <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\Gfx.cpp" />
-    <ClCompile Include="src\GPUTexture.cpp" />
     <ClCompile Include="src\ImGuiHandle.cpp" />
     <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\Main.cpp" />
@@ -124,17 +122,16 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\GfxResources.cpp" />
+    <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\Win32Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Dragon\AppContext.h" />
     <ClInclude Include="include\Dragon\Commons.h" />
     <ClInclude Include="include\Dragon\ConstantBuffers.h" />
-    <ClInclude Include="include\Dragon\CPUTexture.h" />
     <ClInclude Include="include\Dragon\D3D11Utils.h" />
     <ClInclude Include="include\Dragon\App.h" />
     <ClInclude Include="include\Dragon\Gfx.h" />
-    <ClInclude Include="include\Dragon\GPUTexture.h" />
     <ClInclude Include="include\Dragon\hlsl\DefaultVSDebug.h" />
     <ClInclude Include="include\Dragon\hlsl\DefaultVSRelease.h" />
     <ClInclude Include="include\Dragon\hlsl\UnlitPSDebug.h" />
@@ -147,6 +144,7 @@
     <ClInclude Include="include\Dragon\MeshRef.h" />
     <ClInclude Include="include\Dragon\pch.h" />
     <ClInclude Include="include\Dragon\GfxResources.h" />
+    <ClInclude Include="include\Dragon\Texture.h" />
     <ClInclude Include="include\Dragon\Win32Utils.h" />
   </ItemGroup>
   <ItemGroup>
