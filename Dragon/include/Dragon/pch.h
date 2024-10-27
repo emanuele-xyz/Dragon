@@ -13,3 +13,4 @@
 #include <codecvt>
 #include <filesystem>
 #include <fstream>
+#include <algorithm>

@@ -4,7 +4,8 @@
 #include <Dragon/Win32Utils.h>
 #include <Dragon/Input.h>
 #include <Dragon/Gfx.h>
-#include <Dragon/GfxResources.h>
+#include <Dragon/GfxResources.h> // TODO: move to Renderer
+#include <Dragon/MeshMgr.h>
 #include <Dragon/ImGuiHandle.h>
 
 namespace Dragon
@@ -28,5 +29,6 @@ namespace Dragon
         Gfx m_gfx;
         GfxResources m_gfx_resources;
         ImGuiHandle m_imgui;
+        MeshMgr m_mesh_mgr;
     };
 }

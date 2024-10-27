@@ -19,6 +19,7 @@ namespace Dragon
         , m_gfx{ m_window.GetRawHandle() }
         , m_gfx_resources{ m_gfx.GetDevice() }
         , m_imgui{ m_window.GetRawHandle(), m_gfx.GetDevice(), m_gfx.GetContext() }
+        , m_mesh_mgr{ m_gfx.GetDevice() }
     {
     }
 
@@ -27,16 +28,15 @@ namespace Dragon
         Vector3 position{ Vector3::Zero };
         Quaternion rotation{ Quaternion::Identity };
         Vector3 scale{ Vector3::One };
-        size_t mesh{};
+        MeshRef mesh{};
         size_t texture{};
     };
 
     void App::Run()
     {
-        std::vector<Mesh> meshes{};
-        meshes.emplace_back(m_gfx.GetDevice(), "meshes/cube.obj");
-        meshes.emplace_back(m_gfx.GetDevice(), "meshes/plane.obj");
-        meshes.emplace_back(m_gfx.GetDevice(), "meshes/capsule.obj");
+        auto cube_ref{ m_mesh_mgr.Load("meshes/cube.obj") };
+        auto plane_ref{ m_mesh_mgr.Load("meshes/plane.obj") };
+        auto capsule_ref{ m_mesh_mgr.Load("meshes/capsule.obj") };
 
         std::vector<GPUTexture> textures{};
         textures.emplace_back(GPUTexture::FromCPUTexture(m_gfx.GetDevice(), CPUTexture::LoadFromFile("textures/lena.png")));
@@ -45,19 +45,20 @@ namespace Dragon
         std::vector<Object> objects{};
         {
             Object obj{};
+            obj.mesh = cube_ref;
             obj.position = { 0.0f, 1.0f, 0.0f };
             objects.emplace_back(obj);
         }
         {
             Object obj{};
             obj.scale = { 20.0f, 1.0f, 20.0f };
-            obj.mesh = 1;
+            obj.mesh = plane_ref;
             obj.texture = 1;
             objects.emplace_back(obj);
         }
         {
             Object obj{};
-            obj.mesh = 2;
+            obj.mesh = capsule_ref;
             obj.position = { 3.0f, 2.0f, 0.0f };
             objects.emplace_back(obj);
         }
@@ -131,7 +132,7 @@ namespace Dragon
                     m_gfx.GetContext()->PSSetSamplers(0, Dragon_CountOf(sampler_states), sampler_states);
                 }
 
-                for (const auto& obj : objects)
+                for (auto& obj : objects)
                 {
                     // NOTE: update object constants
                     {
@@ -148,14 +149,14 @@ namespace Dragon
                         constants->normal = normal;
                     }
 
-                    auto& mesh{ meshes[obj.mesh] };
+                    auto mesh{ obj.mesh.Get() };
                     auto& texture{ textures[obj.texture] };
 
-                    m_gfx.GetContext()->IASetIndexBuffer(mesh.GetIndices(), DXGI_FORMAT_R32_UINT, 0);
-                    m_gfx.GetContext()->IASetVertexBuffers(0, mesh.GetVertexBufferCount(), mesh.GetVertexBuffers(), mesh.GetStrides(), mesh.GetOffsets());
+                    m_gfx.GetContext()->IASetIndexBuffer(mesh->GetIndices(), DXGI_FORMAT_R32_UINT, 0);
+                    m_gfx.GetContext()->IASetVertexBuffers(0, mesh->GetVertexBufferCount(), mesh->GetVertexBuffers(), mesh->GetStrides(), mesh->GetOffsets());
                     m_gfx.GetContext()->PSSetShaderResources(0, 1, texture.GetAddressOfSRV());
 
-                    m_gfx.GetContext()->DrawIndexed(mesh.GetIndexCount() , 0, 0);
+                    m_gfx.GetContext()->DrawIndexed(mesh->GetIndexCount(), 0, 0);
                 }
             }
 

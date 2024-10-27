@@ -2,6 +2,8 @@
 
 #include <Dragon/D3D11Utils.h>
 
+#include <filesystem>
+
 #define DRAGON_MESH_FLOATS_PER_POSITION 3
 #define DRAGON_MESH_FLOATS_PER_NORMAL 3
 #define DRAGON_MESH_FLOATS_PER_UV 2
@@ -11,12 +13,12 @@ namespace Dragon
     class Mesh
     {
     public:
-        Mesh(ID3D11Device* device, const std::string& path);
+        Mesh(ID3D11Device* device, const std::filesystem::path& path);
         ~Mesh() = default;
         Mesh(const Mesh&) = delete;
-        Mesh(Mesh&&) noexcept = default;
+        Mesh(Mesh&&) noexcept = delete;
         Mesh& operator=(const Mesh&) = delete;
-        Mesh& operator=(Mesh&&) noexcept = default;
+        Mesh& operator=(Mesh&&) noexcept = delete;
     public:
         unsigned GetVertexBufferCount() { return 3; }
         unsigned* GetStrides() { return m_strides; }

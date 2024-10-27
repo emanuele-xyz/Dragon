@@ -8,7 +8,7 @@
 
 namespace Dragon
 {
-    Mesh::Mesh(ID3D11Device* device, const std::string& path)
+    Mesh::Mesh(ID3D11Device* device, const std::filesystem::path& path)
         : m_vertex_count{}
         , m_index_count{}
         , m_positions{}
@@ -20,7 +20,7 @@ namespace Dragon
         , m_offsets{}
     {
         Assimp::Importer importer{};
-        const aiScene* scene{ importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs) };
+        const aiScene* scene{ importer.ReadFile(path.string(), aiProcess_Triangulate | aiProcess_FlipUVs) };
         Dragon_Check(scene);
         Dragon_Check(scene->mNumMeshes == 1);
         aiMesh* mesh{ scene->mMeshes[0] };
