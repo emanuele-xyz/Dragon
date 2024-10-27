@@ -19,6 +19,7 @@ namespace Dragon
         , m_gfx_resources{ m_gfx.GetDevice() }
         , m_imgui{ m_window.GetRawHandle(), m_gfx.GetDevice(), m_gfx.GetContext() }
         , m_mesh_mgr{ m_gfx.GetDevice() }
+        , m_texture_mgr{ m_gfx.GetDevice() }
     {
     }
 
@@ -28,7 +29,7 @@ namespace Dragon
         Quaternion rotation{ Quaternion::Identity };
         Vector3 scale{ Vector3::One };
         MeshRef mesh{};
-        size_t texture{};
+        TextureRef texture{};
     };
 
     void App::Run()
@@ -37,28 +38,29 @@ namespace Dragon
         auto plane_ref{ m_mesh_mgr.Load("meshes/plane.obj") };
         auto capsule_ref{ m_mesh_mgr.Load("meshes/capsule.obj") };
 
-        std::vector<std::unique_ptr<Texture>> textures{};
-        textures.emplace_back(std::make_unique<Texture>(m_gfx.GetDevice(), "textures/lena.png"));
-        textures.emplace_back(std::make_unique<Texture>(m_gfx.GetDevice(), "textures/proto_floor.png"));
+        auto lena_ref{ m_texture_mgr.Load("textures/lena.png") };
+        auto proto_floor_ref{ m_texture_mgr.Load("textures/proto_floor.png") };
 
         std::vector<Object> objects{};
         {
             Object obj{};
-            obj.mesh = cube_ref;
             obj.position = { 0.0f, 1.0f, 0.0f };
+            obj.mesh = cube_ref;
+            obj.texture = lena_ref;
             objects.emplace_back(obj);
         }
         {
             Object obj{};
             obj.scale = { 20.0f, 1.0f, 20.0f };
             obj.mesh = plane_ref;
-            obj.texture = 1;
+            obj.texture = proto_floor_ref;
             objects.emplace_back(obj);
         }
         {
             Object obj{};
-            obj.mesh = capsule_ref;
             obj.position = { 3.0f, 2.0f, 0.0f };
+            obj.mesh = capsule_ref;
+            obj.texture = lena_ref;
             objects.emplace_back(obj);
         }
 
@@ -149,7 +151,7 @@ namespace Dragon
                     }
 
                     auto mesh{ obj.mesh };
-                    auto& texture{ textures[obj.texture] };
+                    auto texture{ obj.texture };
 
                     m_gfx.GetContext()->IASetIndexBuffer(mesh->GetIndices(), DXGI_FORMAT_R32_UINT, 0);
                     m_gfx.GetContext()->IASetVertexBuffers(0, mesh->GetVertexBufferCount(), mesh->GetVertexBuffers(), mesh->GetStrides(), mesh->GetOffsets());

@@ -16,11 +16,12 @@ namespace Dragon
     {
         Dragon_Check(path.has_filename());
 
-        auto mesh_name{ path.filename().string() };
+        auto mesh_name{ path.filename().stem().string() };
         if (auto it{ m_mesh_by_name.find(mesh_name) }; it != m_mesh_by_name.end())
         {
             auto cell{ std::find_if(m_cells.begin(), m_cells.end(), [=](const auto& cell) { return cell.mesh.get() == it->second; }) };
             Dragon_Check(cell != m_cells.end());
+            (*cell->ref_count)++;
             return { cell->ref_count.get(), cell->mesh.get() };
         }
         else

@@ -4,10 +4,11 @@
 namespace Dragon
 {
     MeshRef::MeshRef(size_t* ref_count, Mesh* mesh)
-        : m_ref_count{ ref_count }, m_mesh{ mesh }
+        : m_ref_count{ ref_count }
+        , m_mesh{ mesh }
     {
     }
-    MeshRef::MeshRef() : MeshRef(nullptr, nullptr)
+    MeshRef::MeshRef() : MeshRef{ nullptr, nullptr }
     {
     }
     MeshRef::~MeshRef()
