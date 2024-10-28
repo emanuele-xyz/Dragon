@@ -33,8 +33,34 @@ namespace Dragon
 
     struct Camera
     {
+        void ProcessInput(const KeyboardState& keyboard, const MouseState&, float dt)
+        {
+            Vector3 forward{ target - position };
+            forward.y = 0; // project on xz plane
+            Vector3 right{ forward.Cross(Vector3::Up) };
+
+            if (keyboard.key['W'])
+            {
+                Move(forward * dt);
+            }
+            if (keyboard.key['S'])
+            {
+                Move(-forward * dt);
+            }
+            if (keyboard.key['A'])
+            {
+                Move(-right * dt);
+            }
+            if (keyboard.key['D'])
+            {
+                Move(right * dt);
+            }
+        }
+
         Matrix GetViewMatrix() const { return Matrix::CreateLookAt(position, target, Vector3::Up); }
         Matrix GetProjectionMatrix(float aspect) const { return Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(fov_deg), aspect, z_near, z_far); }
+
+        void Move(Vector3 move) { position += move; target += move; }
 
         Vector3 position;
         Vector3 target;
@@ -106,6 +132,8 @@ namespace Dragon
 
                 m_input.Update(window_messages);
             }
+
+            camera.ProcessInput(m_input.GetKeyboard(), m_input.GetMouse(), m_context.last_frame_dt_sec);
 
             // NOTE: render
             {
