@@ -31,8 +31,27 @@ namespace Dragon
         TextureRef texture{};
     };
 
+    struct Camera
+    {
+        Matrix GetViewMatrix() const { return Matrix::CreateLookAt(position, target, Vector3::Up); }
+        Matrix GetProjectionMatrix(float aspect) const { return Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(fov_deg), aspect, z_near, z_far); }
+
+        Vector3 position;
+        Vector3 target;
+        float fov_deg;
+        float z_near;
+        float z_far;
+    };
+
     void App::Run()
     {
+        Camera camera{};
+        camera.position = { 10.0f, 10.f, 10.0f };
+        camera.target = Vector3::Zero;
+        camera.fov_deg = 45.0f;
+        camera.z_near = 0.01f;
+        camera.z_far = 100.0f;
+
         auto cube_ref{ m_mesh_mgr.Load("meshes/cube.obj") };
         auto plane_ref{ m_mesh_mgr.Load("meshes/plane.obj") };
         auto capsule_ref{ m_mesh_mgr.Load("meshes/capsule.obj") };
@@ -99,8 +118,8 @@ namespace Dragon
                 // NOTE: update camera constants
                 {
                     float aspect{ client_w / client_h };
-                    auto view{ Matrix::CreateLookAt({ 10.0f, 10.f, 10.0f }, Vector3::Zero, Vector3::Up) };
-                    auto projection{ Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(45.0f), aspect, 0.01f, 100.0f) };
+                    auto view{ camera.GetViewMatrix() };
+                    auto projection{ camera.GetProjectionMatrix(aspect) };
                     m_renderer.SetCamera(view, projection);
                 }
 
