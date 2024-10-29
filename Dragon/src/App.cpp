@@ -33,27 +33,49 @@ namespace Dragon
 
     struct Camera
     {
-        void ProcessInput(const KeyboardState& keyboard, const MouseState&, float dt)
+        void ProcessInput(const KeyboardState& keyboard, const MouseState& mouse, float dt)
         {
-            Vector3 forward{ target - position };
-            forward.y = 0; // project on xz plane
-            Vector3 right{ forward.Cross(Vector3::Up) };
+            // NOTE: horizontal movement
+            {
+                Vector3 forward{ target - position };
+                forward.y = 0; // project on xz plane
+                Vector3 right{ forward.Cross(Vector3::Up) };
 
-            if (keyboard.key['W'])
-            {
-                Move(forward * dt);
+                if (keyboard.key['W'])
+                {
+                    Move(forward * dt);
+                }
+                if (keyboard.key['S'])
+                {
+                    Move(-forward * dt);
+                }
+                if (keyboard.key['A'])
+                {
+                    Move(-right * dt);
+                }
+                if (keyboard.key['D'])
+                {
+                    Move(right * dt);
+                }
             }
-            if (keyboard.key['S'])
+
+            // NOTE: rotate around target
             {
-                Move(-forward * dt);
+                if (keyboard.key['Q'])
+                {
+                    RotateAroundTarget(+dt);
+                }
+                if (keyboard.key['E'])
+                {
+                    RotateAroundTarget(-dt);
+                }
+
             }
-            if (keyboard.key['A'])
+
+            // NOTE: vertical movement
+            if (mouse.wheel)
             {
-                Move(-right * dt);
-            }
-            if (keyboard.key['D'])
-            {
-                Move(right * dt);
+                Move({ 0.0f, mouse.wheel > 0 ? +1.0f : -1.0f, 0.0f });
             }
         }
 
@@ -61,6 +83,14 @@ namespace Dragon
         Matrix GetProjectionMatrix(float aspect) const { return Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(fov_deg), aspect, z_near, z_far); }
 
         void Move(Vector3 move) { position += move; target += move; }
+        void RotateAroundTarget(float theta) 
+        {
+            Vector3 pos_target_space{ position - target };
+            Matrix rotation{ Matrix::CreateRotationY(theta) };
+            Vector3 rotated_pos_target_space{ Vector3::Transform(pos_target_space, rotation) };
+            Vector3 new_pos{ rotated_pos_target_space + target };
+            position = new_pos;
+        }
 
         Vector3 position;
         Vector3 target;
