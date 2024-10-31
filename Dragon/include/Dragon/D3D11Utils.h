@@ -7,6 +7,8 @@
 #include <dxgidebug.h>
 #include <d3dcompiler.h>
 
+#include <vector>
+
 namespace D3D11Utils
 {
     class SubresourceMapping
@@ -31,8 +33,9 @@ namespace D3D11Utils
     wrl::ComPtr<ID3D11Device> CreateDevice();
     wrl::ComPtr<ID3D11DeviceContext> GetDeviceContext(ID3D11Device* device);
     void BreakOnErrors(ID3D11Device* device);
-    wrl::ComPtr<IDXGISwapChain1> CreateSwapChain(ID3D11Device* device, HWND hwnd);
+    wrl::ComPtr<IDXGISwapChain1> CreateSwapChain(ID3D11Device* device, HWND hwnd, DXGI_FORMAT back_buffer_format);
     wrl::ComPtr<ID3D11Texture2D> GetSwapChainBackBuffer(IDXGISwapChain1* swap_chain);
+    std::vector<UINT> GetMSAASamplesForFormat(ID3D11Device* device, const std::vector<DXGI_FORMAT>& formats);
     wrl::ComPtr<ID3D11RenderTargetView> CreateRTV(ID3D11Device* device, ID3D11Resource* resource);
     std::tuple<wrl::ComPtr<ID3D11VertexShader>, wrl::ComPtr<ID3DBlob>> LoadVertexShaderFromFile(ID3D11Device* device, const std::string& path);
     wrl::ComPtr<ID3D11PixelShader> LoadPixelShaderFromFile(ID3D11Device* device, const std::string& path);
@@ -44,4 +47,5 @@ namespace D3D11Utils
     wrl::ComPtr<ID3D11Texture2D> CreateTexture2D(ID3D11Device* device, D3D11_TEXTURE2D_DESC* desc, D3D11_SUBRESOURCE_DATA* data = nullptr);
     wrl::ComPtr<ID3D11DepthStencilView> CreateDSV(ID3D11Device* device, ID3D11Resource* resource, D3D11_DEPTH_STENCIL_VIEW_DESC* desc = nullptr);
     wrl::ComPtr<ID3D11ShaderResourceView> CreateSRV(ID3D11Device* device, ID3D11Resource* resource, const D3D11_SHADER_RESOURCE_VIEW_DESC* desc = nullptr);
+    wrl::ComPtr<ID3D11Texture2D> GetTexture2DFromRTV(ID3D11RenderTargetView* rtv);
 }

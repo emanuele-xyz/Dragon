@@ -2,6 +2,8 @@
 
 #include <Dragon/D3D11Utils.h>
 
+#include <vector>
+
 namespace Dragon
 {
     class Gfx
@@ -16,16 +18,20 @@ namespace Dragon
     public:
         ID3D11Device* GetDevice() { return m_device.Get(); }
         ID3D11DeviceContext* GetContext() { return m_context.Get(); }
-        ID3D11RenderTargetView* GetBackBufferRTV() { return m_back_buffer_rtv.Get(); }
-        ID3D11DepthStencilView* GetBackBufferDSV() { return m_back_buffer_dsv.Get(); }
+        ID3D11RenderTargetView* GetBackBufferRTV() { return m_rtv.Get(); }
+        ID3D11DepthStencilView* GetBackBufferDSV() { return m_dsv.Get(); }
     public:
         void Resize();
         void Present(bool vsync);
     private:
+        void CreateRTVAndDSV();
+    private:
         wrl::ComPtr<ID3D11Device> m_device;
         wrl::ComPtr<ID3D11DeviceContext> m_context;
         wrl::ComPtr<IDXGISwapChain1> m_swap_chain;
-        wrl::ComPtr<ID3D11RenderTargetView> m_back_buffer_rtv;
-        wrl::ComPtr<ID3D11DepthStencilView> m_back_buffer_dsv;
+        std::vector<UINT> m_supported_msaa_samples;
+        size_t m_msaa_index;
+        wrl::ComPtr<ID3D11RenderTargetView> m_rtv;
+        wrl::ComPtr<ID3D11DepthStencilView> m_dsv;
     };
 }

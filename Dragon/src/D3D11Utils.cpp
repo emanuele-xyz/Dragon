@@ -59,7 +59,7 @@ namespace D3D11Utils
         }
     }
 
-    wrl::ComPtr<IDXGISwapChain1> CreateSwapChain(ID3D11Device* device, HWND hwnd)
+    wrl::ComPtr<IDXGISwapChain1> CreateSwapChain(ID3D11Device* device, HWND hwnd, DXGI_FORMAT back_buffer_format)
     {
         wrl::ComPtr<IDXGIDevice> dxgi_device{};
         Dragon_CheckHR(device->QueryInterface(dxgi_device.ReleaseAndGetAddressOf()));
@@ -71,7 +71,7 @@ namespace D3D11Utils
         DXGI_SWAP_CHAIN_DESC1 desc{};
         desc.Width = 0; // NOTE: use window width
         desc.Height = 0; // NOTE: use window height
-        desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        desc.Format = back_buffer_format;
         desc.Stereo = FALSE;
         desc.SampleDesc = { .Count = 1, .Quality = 0 };
         desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -95,6 +95,22 @@ namespace D3D11Utils
         wrl::ComPtr<ID3D11Texture2D> back_buffer{};
         Dragon_CheckHR(swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(back_buffer.ReleaseAndGetAddressOf())));
         return back_buffer;
+    }
+
+    std::vector<UINT> GetMSAASamplesForFormat(ID3D11Device* device, const std::vector<DXGI_FORMAT>& formats)
+    {
+        std::vector<UINT> samples;
+        for (UINT i{}; i <= D3D11_MAX_MULTISAMPLE_SAMPLE_COUNT; i++)
+        {
+            bool are_all_formats_supported{ std::all_of(formats.cbegin(), formats.cend(), [=](auto format) {
+                UINT quality_levels{};
+                HRESULT result{ device->CheckMultisampleQualityLevels(format, i, &quality_levels) };
+                bool is_supported{ result == S_OK && quality_levels > 0 };
+                return is_supported;
+            }) };
+            if (are_all_formats_supported) samples.emplace_back(i);
+        }
+        return samples;
     }
 
     wrl::ComPtr<ID3D11RenderTargetView> CreateRTV(ID3D11Device* device, ID3D11Resource* resource)
@@ -178,5 +194,14 @@ namespace D3D11Utils
         wrl::ComPtr<ID3D11ShaderResourceView> srv{};
         Dragon_CheckHR(device->CreateShaderResourceView(resource, desc, srv.ReleaseAndGetAddressOf()));
         return srv;
+    }
+
+    wrl::ComPtr<ID3D11Texture2D> GetTexture2DFromRTV(ID3D11RenderTargetView* rtv)
+    {
+        wrl::ComPtr<ID3D11Resource> resource{};
+        rtv->GetResource(resource.ReleaseAndGetAddressOf());
+        wrl::ComPtr<ID3D11Texture2D> texture{};
+        Dragon_CheckHR(resource->QueryInterface(texture.ReleaseAndGetAddressOf()));
+        return texture;
     }
 }
