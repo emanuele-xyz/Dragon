@@ -193,6 +193,7 @@ namespace Dragon
                 ImGui::Begin("Graphics Settings");
                 {
                     ImGui::Checkbox("V-Sync", &m_context.vsync);
+                    // TODO: select MSAA sample count using ListBox
                 }
                 ImGui::End();
 
