@@ -9,10 +9,14 @@ namespace Dragon
         : m_texture{}
         , m_texture_srv{}
     {
-        DirectX::ScratchImage image{};
-        Dragon_CheckHR(DirectX::LoadFromWICFile(path.wstring().c_str(), DirectX::WIC_FLAGS_NONE, nullptr, image));
+        DirectX::ScratchImage mip_chain{};
+        {
+            DirectX::ScratchImage img{};
+            Dragon_CheckHR(DirectX::LoadFromWICFile(path.wstring().c_str(), DirectX::WIC_FLAGS_NONE, nullptr, img));
+            Dragon_CheckHR(DirectX::GenerateMipMaps(*img.GetImage(0, 0, 0), DirectX::TEX_FILTER_DEFAULT, 0, mip_chain, false));
+        }
 
-        const auto metadata{ image.GetMetadata() };
+        const auto metadata{ mip_chain.GetMetadata() };
 
         D3D11_TEXTURE2D_DESC desc{};
         desc.Width = static_cast<UINT>(metadata.width);
@@ -26,12 +30,16 @@ namespace Dragon
         desc.CPUAccessFlags = 0;
         desc.MiscFlags = 0;
 
-        D3D11_SUBRESOURCE_DATA subres_data{};
-        subres_data.pSysMem = image.GetImage(0, 0, 0)->pixels;
-        subres_data.SysMemPitch = static_cast<UINT>(image.GetImage(0, 0, 0)->rowPitch);
-        subres_data.SysMemSlicePitch = static_cast<UINT>(image.GetImage(0, 0, 0)->slicePitch);
+        auto subres_data{ std::make_unique<D3D11_SUBRESOURCE_DATA[]>(metadata.mipLevels) };
+        for (size_t mip_level{}; mip_level < metadata.mipLevels; mip_level++)
+        {
+            auto img{ mip_chain.GetImage(mip_level, 0, 0) };
+            subres_data[mip_level].pSysMem = img->pixels;
+            subres_data[mip_level].SysMemPitch = static_cast<UINT>(img->rowPitch);
+            subres_data[mip_level].SysMemSlicePitch = static_cast<UINT>(img->slicePitch);
+        }
 
-        m_texture = D3D11Utils::CreateTexture2D(device, &desc, &subres_data);
+        m_texture = D3D11Utils::CreateTexture2D(device, &desc, subres_data.get());
         m_texture_srv = D3D11Utils::CreateSRV(device, m_texture.Get());
     }
 }
