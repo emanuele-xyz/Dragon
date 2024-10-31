@@ -80,17 +80,17 @@ namespace Dragon
         // NOTE: default sampler state
         {
             D3D11_SAMPLER_DESC desc{};
-            desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+            desc.Filter =  D3D11_FILTER_ANISOTROPIC /*D3D11_FILTER_MIN_MAG_MIP_LINEAR*/;
+            desc.MaxAnisotropy = D3D11_REQ_MAXANISOTROPY /*0*/;
             desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
             desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
             desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-            desc.MipLODBias = 0.0f;
-            desc.MaxAnisotropy = 0;
             desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
             desc.BorderColor[0] = 1.0f; // NOTE: obnoxious pink border color
             desc.BorderColor[1] = 0.0f; // NOTE: obnoxious pink border color
             desc.BorderColor[2] = 1.0f; // NOTE: obnoxious pink border color
             desc.BorderColor[3] = 1.0f; // NOTE: obnoxious pink border color
+            desc.MipLODBias = 0.0f;
             desc.MinLOD = 0.0f;
             desc.MaxLOD = D3D11_FLOAT32_MAX;
 
