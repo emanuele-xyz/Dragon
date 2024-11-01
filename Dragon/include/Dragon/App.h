@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Dragon/AppContext.h>
+#include <Dragon/Scheduler.h>
 #include <Dragon/Win32Utils.h>
 #include <Dragon/Input.h>
 #include <Dragon/Gfx.h>
@@ -24,6 +25,7 @@ namespace Dragon
         void Run();
     private:
         AppContext m_context;
+        Scheduler m_scheduler;
         Win32Utils::WindowClass m_window_class;
         Win32Utils::WindowHandle m_window;
         Input m_input;

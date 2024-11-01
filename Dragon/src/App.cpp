@@ -11,6 +11,7 @@ namespace Dragon
 {
     App::App()
         : m_context{}
+        , m_scheduler{}
         , m_window_class{ "dragon_window_class" }
         , m_window{ m_window_class.GetName(), "Dragon", 1280, 720, WS_OVERLAPPEDWINDOW } // TODO: hardcoded
         , m_input{}
@@ -154,6 +155,8 @@ namespace Dragon
         {
             auto t0{ Win32Utils::GetPerformanceCounter() };
 
+            m_scheduler.RunFrameStartCallbacks();
+
             m_window.ClearMessages();
             m_window.PumpMessages();
 
@@ -212,8 +215,10 @@ namespace Dragon
                             bool is_selected{ i == m_context.msaa_index };
                             if (ImGui::Selectable(m_context.msaa_settings[i].c_str(), is_selected))
                             {
-                                m_context.msaa_index = i;
-                                m_gfx.SetMSAAIndex(i);
+                                m_scheduler.ScheduleAtNextFrameStart([i, this]() {
+                                    m_context.msaa_index = i;
+                                    m_gfx.SetMSAAIndex(i);
+                                });
                             }
                         }
                         ImGui::EndListBox();
