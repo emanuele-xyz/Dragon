@@ -81,7 +81,7 @@ namespace Dragon
         {
             D3D11_SAMPLER_DESC desc{};
             desc.Filter =  D3D11_FILTER_ANISOTROPIC /*D3D11_FILTER_MIN_MAG_MIP_LINEAR*/;
-            desc.MaxAnisotropy = D3D11_REQ_MAXANISOTROPY /*0*/;
+            desc.MaxAnisotropy = D3D11_REQ_MAXANISOTROPY /*0*/; // TODO: configure
             desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
             desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
             desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;

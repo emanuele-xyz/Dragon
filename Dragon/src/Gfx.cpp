@@ -16,7 +16,7 @@ namespace Dragon
         m_swap_chain = D3D11Utils::CreateSwapChain(m_device.Get(), hwnd, DRAGON_BACK_BUFFER_FORMAT);
         m_supported_msaa_samples = D3D11Utils::GetMSAASamplesForFormat(m_device.Get(), { DRAGON_BACK_BUFFER_FORMAT, DRAGON_DEPTH_STENCIL_FORMAT });
         Dragon_Check(m_supported_msaa_samples.size() > 0);
-        m_msaa_index = m_supported_msaa_samples.size() - 1; // TODO: Default to lowest msaa setting (a.k.a. none)
+        m_msaa_index = 0; /*m_supported_msaa_samples.size() - 1;*/
         CreateRTVAndDSV();
     }
 

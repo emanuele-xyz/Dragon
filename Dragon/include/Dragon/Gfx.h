@@ -20,6 +20,8 @@ namespace Dragon
         ID3D11DeviceContext* GetContext() { return m_context.Get(); }
         ID3D11RenderTargetView* GetBackBufferRTV() { return m_rtv.Get(); }
         ID3D11DepthStencilView* GetBackBufferDSV() { return m_dsv.Get(); }
+        size_t GetMSAAIndex() const { return m_msaa_index; }
+        std::span<const UINT> GetSupportedMSAASamples() const { return m_supported_msaa_samples; }
     public:
         void Resize();
         void Present(bool vsync);

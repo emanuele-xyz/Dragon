@@ -20,6 +20,18 @@ namespace Dragon
         , m_mesh_mgr{ m_gfx.GetDevice() }
         , m_texture_mgr{ m_gfx.GetDevice() }
     {
+        m_context.msaa_index = m_gfx.GetMSAAIndex();
+        for (auto sample : m_gfx.GetSupportedMSAASamples())
+        {
+            if (sample == 1)
+            {
+                m_context.msaa_settings.emplace_back("No MSAA");
+            }
+            else
+            {
+                m_context.msaa_settings.emplace_back(std::format("x{}", sample));
+            }
+        }
     }
 
     struct Object
@@ -83,7 +95,7 @@ namespace Dragon
         Matrix GetProjectionMatrix(float aspect) const { return Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(fov_deg), aspect, z_near, z_far); }
 
         void Move(Vector3 move) { position += move; target += move; }
-        void RotateAroundTarget(float theta) 
+        void RotateAroundTarget(float theta)
         {
             Vector3 pos_target_space{ position - target };
             Matrix rotation{ Matrix::CreateRotationY(theta) };
@@ -193,7 +205,21 @@ namespace Dragon
                 ImGui::Begin("Graphics Settings");
                 {
                     ImGui::Checkbox("V-Sync", &m_context.vsync);
-                    // TODO: select MSAA sample count using ListBox
+                    if (ImGui::BeginListBox("MSAA"))
+                    {
+                        for (size_t i{}; i < m_context.msaa_settings.size(); i++)
+                        {
+                            bool is_selected{ i == m_context.msaa_index };
+                            if (ImGui::Selectable(m_context.msaa_settings[i].c_str(), is_selected))
+                            {
+                                // Handle item selection
+                                // You can set isSelected or perform other logic
+                                int k{};
+                                k;
+                            }
+                        }
+                        ImGui::EndListBox();
+                    }
                 }
                 ImGui::End();
 
