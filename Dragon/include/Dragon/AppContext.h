@@ -5,6 +5,7 @@
 
 namespace Dragon
 {
+    // TODO: maybe split this into AppContext and GfxSettings
     struct AppContext
     {
         bool is_running{ true };
