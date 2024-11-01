@@ -212,10 +212,8 @@ namespace Dragon
                             bool is_selected{ i == m_context.msaa_index };
                             if (ImGui::Selectable(m_context.msaa_settings[i].c_str(), is_selected))
                             {
-                                // Handle item selection
-                                // You can set isSelected or perform other logic
-                                int k{};
-                                k;
+                                m_context.msaa_index = i;
+                                m_gfx.SetMSAAIndex(i);
                             }
                         }
                         ImGui::EndListBox();

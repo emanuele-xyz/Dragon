@@ -16,7 +16,19 @@ namespace Dragon
         m_swap_chain = D3D11Utils::CreateSwapChain(m_device.Get(), hwnd, DRAGON_BACK_BUFFER_FORMAT);
         m_supported_msaa_samples = D3D11Utils::GetMSAASamplesForFormat(m_device.Get(), { DRAGON_BACK_BUFFER_FORMAT, DRAGON_DEPTH_STENCIL_FORMAT });
         Dragon_Check(m_supported_msaa_samples.size() > 0);
-        m_msaa_index = 0; /*m_supported_msaa_samples.size() - 1;*/
+        m_msaa_index = 0;
+        CreateRTVAndDSV();
+    }
+
+    void Gfx::SetMSAAIndex(size_t idx)
+    {
+        Dragon_Check(idx < m_supported_msaa_samples.size());
+        m_msaa_index = idx;
+
+        m_context->ClearState();
+        m_rtv.Reset();
+        m_dsv.Reset();
+
         CreateRTVAndDSV();
     }
 
