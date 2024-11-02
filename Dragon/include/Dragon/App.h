@@ -29,7 +29,7 @@ namespace Dragon
         Win32Utils::WindowClass m_window_class;
         Win32Utils::WindowHandle m_window;
         Input m_input;
-        Gfx m_gfx;
+        Gfx m_gfx; // TODO: replace with GfxDevice and SwapChain
         ImGuiHandle m_imgui;
         Renderer m_renderer;
         MeshMgr m_mesh_mgr;
