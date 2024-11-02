@@ -21,7 +21,7 @@ namespace Dragon
         , m_mesh_mgr{ m_gfx.GetDevice() }
         , m_texture_mgr{ m_gfx.GetDevice() }
     {
-        m_context.msaa_index = m_gfx.GetMSAAIndex();
+        m_context.msaa_index = m_gfx.GetMSAAIndex(); // TODO: cringe. Split Gfx into GfxDevice and SwapChain
         for (auto sample : m_gfx.GetSupportedMSAASamples())
         {
             if (sample == 1)
@@ -31,6 +31,19 @@ namespace Dragon
             else
             {
                 m_context.msaa_settings.emplace_back(std::format("x{}", sample));
+            }
+        }
+
+        m_context.anisotropy_index = m_renderer.GetAnisotropyIndex(); // TODO: this is demented
+        for (int i{}; i <= D3D11_MAX_MAXANISOTROPY; i++)
+        {
+            if (i == 0)
+            {
+                m_context.anisotropy_settings.emplace_back("Disabled");
+            }
+            else
+            {
+                m_context.anisotropy_settings.emplace_back(std::format("x{}", i));
             }
         }
     }
@@ -88,7 +101,8 @@ namespace Dragon
             // NOTE: vertical movement
             if (mouse.wheel)
             {
-                Move({ 0.0f, mouse.wheel > 0 ? +1.0f : -1.0f, 0.0f });
+                position.y += mouse.wheel > 0 ? +0.25f : -0.25f; // TODO: to be removed
+                //Move({ 0.0f, mouse.wheel > 0 ? +1.0f : -1.0f, 0.0f }); TODO: use this
             }
         }
 
@@ -127,6 +141,7 @@ namespace Dragon
 
         auto lena_ref{ m_texture_mgr.Load("textures/lena.png") };
         auto proto_floor_ref{ m_texture_mgr.Load("textures/proto_floor.png") };
+        auto paving_stones_ref{ m_texture_mgr.Load("textures/paving_stones.png") };
 
         std::vector<Object> objects{};
         {
@@ -140,7 +155,7 @@ namespace Dragon
             Object obj{};
             obj.scale = { 20.0f, 1.0f, 20.0f };
             obj.mesh = plane_ref;
-            obj.texture = proto_floor_ref;
+            obj.texture = paving_stones_ref;
             objects.emplace_back(obj);
         }
         {
@@ -208,6 +223,7 @@ namespace Dragon
                 ImGui::Begin("Graphics Settings");
                 {
                     ImGui::Checkbox("V-Sync", &m_context.vsync);
+                    
                     if (ImGui::BeginListBox("MSAA"))
                     {
                         for (size_t i{}; i < m_context.msaa_settings.size(); i++)
@@ -218,6 +234,22 @@ namespace Dragon
                                 m_scheduler.ScheduleAtNextFrameStart([i, this]() {
                                     m_context.msaa_index = i;
                                     m_gfx.SetMSAAIndex(i);
+                                });
+                            }
+                        }
+                        ImGui::EndListBox();
+                    }
+
+                    if (ImGui::BeginListBox("Anisotropic Filtering"))
+                    {
+                        for (size_t i{}; i < m_context.anisotropy_settings.size(); i++)
+                        {
+                            bool is_selected{ i == m_context.anisotropy_index };
+                            if (ImGui::Selectable(m_context.anisotropy_settings[i].c_str(), is_selected))
+                            {
+                                m_scheduler.ScheduleAtNextFrameStart([i, this]() {
+                                    m_context.anisotropy_index = i;
+                                    m_renderer.SetAnisotropy(static_cast<unsigned>(i));
                                 });
                             }
                         }

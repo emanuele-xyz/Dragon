@@ -77,24 +77,9 @@ namespace Dragon
             Dragon_CheckHR(m_device->CreateDepthStencilState(&desc, m_depth_stencil_state_default.ReleaseAndGetAddressOf()));
         }
 
-        // NOTE: default sampler state
+        // NOTE: create sampler state (default to no anisotropic filtering)
         {
-            D3D11_SAMPLER_DESC desc{};
-            desc.Filter =  D3D11_FILTER_ANISOTROPIC /*D3D11_FILTER_MIN_MAG_MIP_LINEAR*/;
-            desc.MaxAnisotropy = D3D11_REQ_MAXANISOTROPY /*0*/; // TODO: configure
-            desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-            desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-            desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-            desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-            desc.BorderColor[0] = 1.0f; // NOTE: obnoxious pink border color
-            desc.BorderColor[1] = 0.0f; // NOTE: obnoxious pink border color
-            desc.BorderColor[2] = 1.0f; // NOTE: obnoxious pink border color
-            desc.BorderColor[3] = 1.0f; // NOTE: obnoxious pink border color
-            desc.MipLODBias = 0.0f;
-            desc.MinLOD = 0.0f;
-            desc.MaxLOD = D3D11_FLOAT32_MAX;
-
-            Dragon_CheckHR(m_device->CreateSamplerState(&desc, m_sampler_state_default.ReleaseAndGetAddressOf()));
+            SetAnisotropy(0);
         }
 
         // TODO: camera constants
@@ -163,7 +148,7 @@ namespace Dragon
     {
         // NOTE: update object constants
         {
-            D3D11Utils::SubresourceMapping subres_mapping{ m_context, m_cb_object.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0};
+            D3D11Utils::SubresourceMapping subres_mapping{ m_context, m_cb_object.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0 };
             auto constants{ static_cast<CBObject*>(subres_mapping.GetSubresource().pData) };
             Matrix translate{ Matrix::CreateTranslation(position) };
             Matrix rotate{ Matrix::CreateFromQuaternion(rotation) };
@@ -181,5 +166,27 @@ namespace Dragon
         m_context->PSSetShaderResources(0, 1, texture->GetAddressOfSRV());
 
         m_context->DrawIndexed(mesh->GetIndexCount(), 0, 0);
+    }
+
+    void Renderer::SetAnisotropy(unsigned anisotropy)
+    {
+        Dragon_Check(anisotropy <= D3D11_REQ_MAXANISOTROPY);
+
+        D3D11_SAMPLER_DESC desc{};
+        desc.Filter = anisotropy ? D3D11_FILTER_ANISOTROPIC : D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        desc.MaxAnisotropy = anisotropy;
+        desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+        desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+        desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+        desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+        desc.BorderColor[0] = 1.0f; // NOTE: obnoxious pink border color
+        desc.BorderColor[1] = 0.0f; // NOTE: obnoxious pink border color
+        desc.BorderColor[2] = 1.0f; // NOTE: obnoxious pink border color
+        desc.BorderColor[3] = 1.0f; // NOTE: obnoxious pink border color
+        desc.MipLODBias = 0.0f;
+        desc.MinLOD = 0.0f;
+        desc.MaxLOD = D3D11_FLOAT32_MAX;
+
+        Dragon_CheckHR(m_device->CreateSamplerState(&desc, m_sampler_state_default.ReleaseAndGetAddressOf()));
     }
 }

@@ -20,6 +20,9 @@ namespace Dragon
         void NewFrame(ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, float w, float h);
         void SetCamera(const Matrix& view, const Matrix& projection);
         void Render(Vector3 position, Quaternion rotation, Vector3 scaling, MeshRef mesh, TextureRef texture);
+    public:
+        void SetAnisotropy(unsigned anisotropy);
+        size_t GetAnisotropyIndex() { return 0; }
     private:
         ID3D11Device* m_device;
         ID3D11DeviceContext* m_context;

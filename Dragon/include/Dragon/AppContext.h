@@ -10,6 +10,8 @@ namespace Dragon
     {
         bool is_running{ true };
         bool vsync{ false };
+        size_t anisotropy_index;
+        std::vector<std::string> anisotropy_settings;
         size_t msaa_index;
         std::vector<std::string> msaa_settings;
         float time_since_start_sec;
