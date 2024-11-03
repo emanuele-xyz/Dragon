@@ -113,6 +113,16 @@ namespace D3D11Utils
         return samples;
     }
 
+    std::vector<UINT> GetAnisotropyLevels()
+    {
+        std::vector<UINT> levels{};
+        for (unsigned i{}; i <= D3D10_MAX_MAXANISOTROPY; i++)
+        {
+            levels.emplace_back(i);
+        }
+        return levels;
+    }
+
     wrl::ComPtr<ID3D11RenderTargetView> CreateRTV(ID3D11Device* device, ID3D11Resource* resource)
     {
         wrl::ComPtr<ID3D11RenderTargetView> rtv{};

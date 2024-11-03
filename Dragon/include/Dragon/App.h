@@ -4,7 +4,9 @@
 #include <Dragon/Scheduler.h>
 #include <Dragon/Win32Utils.h>
 #include <Dragon/Input.h>
-#include <Dragon/Gfx.h>
+#include <Dragon/GfxDevice.h>
+#include <Dragon/GfxSettings.h>
+#include <Dragon/SwapChain.h>
 #include <Dragon/ImGuiHandle.h>
 #include <Dragon/Renderer.h>
 #include <Dragon/MeshMgr.h>
@@ -29,7 +31,9 @@ namespace Dragon
         Win32Utils::WindowClass m_window_class;
         Win32Utils::WindowHandle m_window;
         Input m_input;
-        Gfx m_gfx; // TODO: replace with GfxDevice and SwapChain
+        GfxDevice m_gfx_device;
+        GfxSettings m_gfx_settings;
+        SwapChain m_swap_chain;
         ImGuiHandle m_imgui;
         Renderer m_renderer;
         MeshMgr m_mesh_mgr;

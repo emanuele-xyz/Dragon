@@ -15,38 +15,14 @@ namespace Dragon
         , m_window_class{ "dragon_window_class" }
         , m_window{ m_window_class.GetName(), "Dragon", 1280, 720, WS_OVERLAPPEDWINDOW } // TODO: hardcoded
         , m_input{}
-        , m_gfx{ m_window.GetRawHandle() }
-        // TODO: m_gfx_settings{}
-        , m_imgui{ m_window.GetRawHandle(), m_gfx.GetDevice(), m_gfx.GetContext() }
-        , m_renderer{ m_gfx.GetDevice(), m_gfx.GetContext() }
-        , m_mesh_mgr{ m_gfx.GetDevice() }
-        , m_texture_mgr{ m_gfx.GetDevice() }
+        , m_gfx_device{}
+        , m_gfx_settings{ m_gfx_device.GetDevice() }
+        , m_swap_chain{ m_gfx_device.GetDevice(), m_gfx_device.GetContext(), m_window.GetRawHandle(), m_gfx_settings.msaa_samples[m_gfx_settings.msaa_index] }
+        , m_imgui{ m_window.GetRawHandle(), m_gfx_device.GetDevice(), m_gfx_device.GetContext() }
+        , m_renderer{ m_gfx_device.GetDevice(), m_gfx_device.GetContext() }
+        , m_mesh_mgr{ m_gfx_device.GetDevice() }
+        , m_texture_mgr{ m_gfx_device.GetDevice() }
     {
-        m_context.msaa_index = m_gfx.GetMSAAIndex(); // TODO: cringe. Split Gfx into GfxDevice and SwapChain
-        for (auto sample : m_gfx.GetSupportedMSAASamples())
-        {
-            if (sample == 1)
-            {
-                m_context.msaa_settings.emplace_back("No MSAA");
-            }
-            else
-            {
-                m_context.msaa_settings.emplace_back(std::format("x{}", sample));
-            }
-        }
-
-        m_context.anisotropy_index = m_renderer.GetAnisotropyIndex(); // TODO: this is demented
-        for (int i{}; i <= D3D11_MAX_MAXANISOTROPY; i++)
-        {
-            if (i == 0)
-            {
-                m_context.anisotropy_settings.emplace_back("Disabled");
-            }
-            else
-            {
-                m_context.anisotropy_settings.emplace_back(std::format("x{}", i));
-            }
-        }
     }
 
     struct Object
@@ -148,6 +124,7 @@ namespace Dragon
         {
             Object obj{};
             obj.position = { 0.0f, 1.0f, 0.0f };
+            obj.rotation = Quaternion::CreateFromYawPitchRoll({45.0f, 0.0f, 0.0f});
             obj.mesh = cube_ref;
             obj.texture = lena_ref;
             objects.emplace_back(obj);
@@ -156,7 +133,7 @@ namespace Dragon
             Object obj{};
             obj.scale = { 20.0f, 1.0f, 20.0f };
             obj.mesh = plane_ref;
-            obj.texture = paving_stones_ref;
+            obj.texture = proto_floor_ref;
             objects.emplace_back(obj);
         }
         {
@@ -187,7 +164,7 @@ namespace Dragon
                     }
                     else if (msg.message == WM_SIZE)
                     {
-                        m_gfx.Resize();
+                        m_swap_chain.Resize();
                     }
                 }
 
@@ -198,8 +175,8 @@ namespace Dragon
 
             // NOTE: render
             {
-                auto rtv{ m_gfx.GetBackBufferRTV() };
-                auto dsv{ m_gfx.GetBackBufferDSV() };
+                auto rtv{ m_swap_chain.GetRTV() };
+                auto dsv{ m_swap_chain.GetDSV() };
                 auto [client_w, client_h] { m_window.GetClientDimensionsFloat() };
 
                 m_renderer.NewFrame(rtv, dsv, client_w, client_h);
@@ -223,19 +200,19 @@ namespace Dragon
             {
                 ImGui::Begin("Graphics Settings");
                 {
-                    ImGui::Checkbox("V-Sync", &m_context.vsync);
-                    
+                    ImGui::Checkbox("V-Sync", &m_gfx_settings.vsync);
+
                     if (ImGui::BeginListBox("MSAA"))
                     {
-                        for (size_t i{}; i < m_context.msaa_settings.size(); i++)
+                        for (size_t i{}; i < m_gfx_settings.msaa_descriptions.size(); i++)
                         {
-                            bool is_selected{ i == m_context.msaa_index };
-                            if (ImGui::Selectable(m_context.msaa_settings[i].c_str(), is_selected))
+                            bool is_selected{ i == m_gfx_settings.msaa_index };
+                            if (ImGui::Selectable(m_gfx_settings.msaa_descriptions[i].c_str(), is_selected))
                             {
                                 m_scheduler.ScheduleAtNextFrameStart([i, this]() {
-                                    m_context.msaa_index = i;
-                                    m_gfx.SetMSAAIndex(i);
-                                });
+                                    m_gfx_settings.msaa_index = i;
+                                    m_swap_chain.SetMSAASampleCount(m_gfx_settings.msaa_samples[m_gfx_settings.msaa_index]);
+                                    });
                             }
                         }
                         ImGui::EndListBox();
@@ -243,15 +220,15 @@ namespace Dragon
 
                     if (ImGui::BeginListBox("Anisotropic Filtering"))
                     {
-                        for (size_t i{}; i < m_context.anisotropy_settings.size(); i++)
+                        for (size_t i{}; i < m_gfx_settings.anisotropy_descriptions.size(); i++)
                         {
-                            bool is_selected{ i == m_context.anisotropy_index };
-                            if (ImGui::Selectable(m_context.anisotropy_settings[i].c_str(), is_selected))
+                            bool is_selected{ i == m_gfx_settings.anisotropy_index };
+                            if (ImGui::Selectable(m_gfx_settings.anisotropy_descriptions[i].c_str(), is_selected))
                             {
                                 m_scheduler.ScheduleAtNextFrameStart([i, this]() {
-                                    m_context.anisotropy_index = i;
-                                    m_renderer.SetAnisotropy(static_cast<unsigned>(i));
-                                });
+                                    m_gfx_settings.anisotropy_index = i;
+                                    m_renderer.SetAnisotropy(m_gfx_settings.anisotropy_levels[m_gfx_settings.anisotropy_index]);
+                                    });
                             }
                         }
                         ImGui::EndListBox();
@@ -286,7 +263,7 @@ namespace Dragon
             }
             m_imgui.Render();
 
-            m_gfx.Present(m_context.vsync);
+            m_swap_chain.Present(m_gfx_settings.vsync);
 
             auto t1{ Win32Utils::GetPerformanceCounter() };
 

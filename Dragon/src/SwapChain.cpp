@@ -1,15 +1,12 @@
 #include <Dragon/pch.h>
 #include <Dragon/SwapChain.h>
 
-#define DRAGON_BACK_BUFFER_FORMAT DXGI_FORMAT_R8G8B8A8_UNORM
-#define DRAGON_DEPTH_STENCIL_FORMAT DXGI_FORMAT_D24_UNORM_S8_UINT
-
 namespace Dragon
 {
     SwapChain::SwapChain(ID3D11Device* device, ID3D11DeviceContext* context, HWND hwnd, unsigned msaa_sample_count)
         : m_device{ device }
         , m_context{ context }
-        , m_swap_chain{ D3D11Utils::CreateSwapChain(m_device, hwnd, DRAGON_BACK_BUFFER_FORMAT) }
+        , m_swap_chain{ D3D11Utils::CreateSwapChain(m_device, hwnd, DRAGON_SWAP_CHAIN_BACK_BUFFER_FORMAT) }
         , m_rtv{}
         , m_dsv{}
     {
@@ -46,17 +43,20 @@ namespace Dragon
         CreateRTVAndDSV(msaa_sample_count);
     }
 
-    void SwapChain::Present(bool vsync, unsigned msaa_sample_count)
+    void SwapChain::Present(bool vsync)
     {
         auto back_buffer{ D3D11Utils::GetSwapChainBackBuffer(m_swap_chain.Get()) };
         auto color_buffer{ D3D11Utils::GetTexture2DFromRTV(m_rtv.Get()) };
+        D3D11_TEXTURE2D_DESC color_buffer_desc{};
+        color_buffer->GetDesc(&color_buffer_desc);
+        unsigned msaa_sample_count{ color_buffer_desc.SampleDesc.Count };
         if (msaa_sample_count == 1)
         {
             m_context->CopyResource(back_buffer.Get(), color_buffer.Get());
         }
         else
         {
-            m_context->ResolveSubresource(back_buffer.Get(), 0, color_buffer.Get(), 0, DRAGON_BACK_BUFFER_FORMAT);
+            m_context->ResolveSubresource(back_buffer.Get(), 0, color_buffer.Get(), 0, DRAGON_SWAP_CHAIN_BACK_BUFFER_FORMAT);
         }
 
         Dragon_CheckHR(m_swap_chain->Present(vsync ? 1 : 0, 0));
@@ -85,17 +85,17 @@ namespace Dragon
         back_buffer->GetDesc(&buffer_desc);
 
         buffer_desc.BindFlags = D3D11_BIND_RENDER_TARGET;
-        buffer_desc.Format = DRAGON_BACK_BUFFER_FORMAT;
+        buffer_desc.Format = DRAGON_SWAP_CHAIN_BACK_BUFFER_FORMAT;
         buffer_desc.SampleDesc.Count = msaa_sample_count;
         buffer_desc.SampleDesc.Quality = buffer_desc.SampleDesc.Count == 1 ? 0 : D3D11_STANDARD_MULTISAMPLE_PATTERN;
         auto color_buffer{ D3D11Utils::CreateTexture2D(m_device, &buffer_desc) };
         m_rtv = D3D11Utils::CreateRTV(m_device, color_buffer.Get());
 
         buffer_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-        buffer_desc.Format = DRAGON_DEPTH_STENCIL_FORMAT;
+        buffer_desc.Format = DRAGON_SWAP_CHAIN_DEPTH_STENCIL_FORMAT;
         buffer_desc.SampleDesc.Count = msaa_sample_count;
         buffer_desc.SampleDesc.Quality = buffer_desc.SampleDesc.Count == 1 ? 0 : D3D11_STANDARD_MULTISAMPLE_PATTERN;
         auto depth_buffer{ D3D11Utils::CreateTexture2D(m_device, &buffer_desc) };
         m_dsv = D3D11Utils::CreateDSV(m_device, depth_buffer.Get());
     }
-}
+        }

@@ -36,6 +36,7 @@ namespace D3D11Utils
     wrl::ComPtr<IDXGISwapChain1> CreateSwapChain(ID3D11Device* device, HWND hwnd, DXGI_FORMAT back_buffer_format);
     wrl::ComPtr<ID3D11Texture2D> GetSwapChainBackBuffer(IDXGISwapChain1* swap_chain);
     std::vector<UINT> GetMSAASamplesForFormat(ID3D11Device* device, const std::vector<DXGI_FORMAT>& formats);
+    std::vector<UINT> GetAnisotropyLevels();
     wrl::ComPtr<ID3D11RenderTargetView> CreateRTV(ID3D11Device* device, ID3D11Resource* resource);
     std::tuple<wrl::ComPtr<ID3D11VertexShader>, wrl::ComPtr<ID3DBlob>> LoadVertexShaderFromFile(ID3D11Device* device, const std::string& path);
     wrl::ComPtr<ID3D11PixelShader> LoadPixelShaderFromFile(ID3D11Device* device, const std::string& path);

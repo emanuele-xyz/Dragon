@@ -110,8 +110,8 @@
     <ClCompile Include="src\Commons.cpp" />
     <ClCompile Include="src\D3D11Utils.cpp" />
     <ClCompile Include="src\App.cpp" />
-    <ClCompile Include="src\Gfx.cpp" />
     <ClCompile Include="src\GfxDevice.cpp" />
+    <ClCompile Include="src\GfxSettings.cpp" />
     <ClCompile Include="src\ImGuiHandle.cpp" />
     <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\Main.cpp" />
@@ -135,8 +135,8 @@
     <ClInclude Include="include\Dragon\Commons.h" />
     <ClInclude Include="include\Dragon\D3D11Utils.h" />
     <ClInclude Include="include\Dragon\App.h" />
-    <ClInclude Include="include\Dragon\Gfx.h" />
     <ClInclude Include="include\Dragon\GfxDevice.h" />
+    <ClInclude Include="include\Dragon\GfxSettings.h" />
     <ClInclude Include="include\Dragon\hlsl\DefaultVSDebug.h" />
     <ClInclude Include="include\Dragon\hlsl\DefaultVSRelease.h" />
     <ClInclude Include="include\Dragon\hlsl\UnlitPSDebug.h" />
