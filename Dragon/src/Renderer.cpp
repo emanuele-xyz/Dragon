@@ -15,6 +15,14 @@ namespace Dragon
         Matrix normal;
     };
 
+    // TODO: update this to new layout
+    struct CBLighting
+    {
+        Vector4 ambient_color;
+        Vector4 light_color;
+        Vector4 light_direction;
+    };
+
     Renderer::Renderer(ID3D11Device* device, ID3D11DeviceContext* context)
         : m_device{ device }
         , m_context{ context }
@@ -24,13 +32,16 @@ namespace Dragon
             #if defined(_DEBUG)
             #include <Dragon/hlsl/DefaultVSDebug.h> // for vs_default_bytecode
             #include <Dragon/hlsl/UnlitPSDebug.h> // for ps_unlit_bytecode
+            #include <Dragon/hlsl/LitPSDebug.h> // for ps_unlit_bytecode
             #else
             #include <Dragon/hlsl/DefaultVSRelease.h> // for vs_default_bytecode
             #include <Dragon/hlsl/UnlitPSRelease.h> // for ps_unlit_bytecode
+            #include <Dragon/hlsl/LitPSRelease.h> // for ps_unlit_bytecode
             #endif
 
             m_vs_default = D3D11Utils::LoadVertexShaderFromBytecode(m_device, vs_default_bytecode, Dragon_CountOf(vs_default_bytecode));
             m_ps_unlit = D3D11Utils::LoadPixelShaderFromBytecode(m_device, ps_unlit_bytecode, Dragon_CountOf(ps_unlit_bytecode));
+            m_ps_lit = D3D11Utils::LoadPixelShaderFromBytecode(m_device, ps_lit_bytecode, Dragon_CountOf(ps_lit_bytecode));
 
             D3D11_INPUT_ELEMENT_DESC desc[]
             {
@@ -40,7 +51,6 @@ namespace Dragon
             };
             m_input_layout = D3D11Utils::CreateInputLayout(m_device, desc, Dragon_CountOf(desc), vs_default_bytecode, Dragon_CountOf(vs_default_bytecode));
         }
-
 
         // NOTE: default rasterizer state
         {
@@ -92,7 +102,7 @@ namespace Dragon
             desc.MiscFlags = 0;
             desc.StructureByteStride = 0;
             Dragon_CheckHR(m_device->CreateBuffer(&desc, nullptr, m_cb_camera.ReleaseAndGetAddressOf()));
-            m_constant_buffers[0] = m_cb_camera.Get();
+            m_constant_buffers.emplace_back(m_cb_camera.Get());
         }
 
         // NOTE: object constants
@@ -105,7 +115,20 @@ namespace Dragon
             desc.MiscFlags = 0;
             desc.StructureByteStride = 0;
             Dragon_CheckHR(m_device->CreateBuffer(&desc, nullptr, m_cb_object.ReleaseAndGetAddressOf()));
-            m_constant_buffers[1] = m_cb_object.Get();
+            m_constant_buffers.emplace_back(m_cb_object.Get());
+        }
+
+        // NOTE: ambient and directional light constants
+        {
+            D3D11_BUFFER_DESC desc{};
+            desc.ByteWidth = sizeof(CBLighting);
+            desc.Usage = D3D11_USAGE_DYNAMIC;
+            desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+            desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+            desc.MiscFlags = 0;
+            desc.StructureByteStride = 0;
+            Dragon_CheckHR(m_device->CreateBuffer(&desc, nullptr, m_cb_lighting.ReleaseAndGetAddressOf()));
+            m_constant_buffers.emplace_back(m_cb_lighting.Get());
         }
     }
 
@@ -130,9 +153,10 @@ namespace Dragon
         m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         m_context->IASetInputLayout(m_input_layout.Get());
         m_context->VSSetShader(m_vs_default.Get(), nullptr, 0);
-        m_context->VSSetConstantBuffers(0, Dragon_CountOf(m_constant_buffers), m_constant_buffers);
-        m_context->PSSetShader(m_ps_unlit.Get(), nullptr, 0);
-        m_context->PSSetConstantBuffers(0, Dragon_CountOf(m_constant_buffers), m_constant_buffers);
+        m_context->VSSetConstantBuffers(0, static_cast<UINT>(m_constant_buffers.size()), m_constant_buffers.data());
+        //m_context->PSSetShader(m_ps_unlit.Get(), nullptr, 0);
+        m_context->PSSetShader(m_ps_lit.Get(), nullptr, 0);
+        m_context->PSSetConstantBuffers(0, static_cast<UINT>(m_constant_buffers.size()), m_constant_buffers.data());
         m_context->PSSetSamplers(0, 1, m_sampler_state_default.GetAddressOf());
     }
 
@@ -142,6 +166,15 @@ namespace Dragon
         auto constants{ static_cast<CBCamera*>(subres_mapping.GetSubresource().pData) };
         constants->view = view;
         constants->projection = projection;
+    }
+
+    void Renderer::SetLighting(Vector3 ambient_color, Vector3 light_direction, Vector3 light_color)
+    {
+        D3D11Utils::SubresourceMapping subres_mapping{ m_context, m_cb_lighting.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0 };
+        auto constants{ static_cast<CBLighting*>(subres_mapping.GetSubresource().pData) };
+        constants->ambient_color = { ambient_color.x, ambient_color.y, ambient_color.z, 1.0f };
+        constants->light_color = { light_color.x, light_color.y, light_color.z, 1.0f };
+        constants->light_direction = { light_direction.x, light_direction.y, light_direction.z, 0.0f };
     }
 
     void Renderer::Render(Vector3 position, Quaternion rotation, Vector3 scaling, MeshRef mesh, TextureRef texture)

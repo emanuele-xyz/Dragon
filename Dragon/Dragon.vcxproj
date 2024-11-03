@@ -78,7 +78,9 @@
     </Link>
     <FxCompile>
       <AdditionalIncludeDirectories>$(ProjectDir)\hlsl\include</AdditionalIncludeDirectories>
-      <ObjectFileOutput>$(OutDir)\cso\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>
+      </ObjectFileOutput>
+      <HeaderFileOutput>$(ProjectDir)\include\Dragon\hlsl\%(Filename)$(Configuration).h</HeaderFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -103,7 +105,9 @@
     </Link>
     <FxCompile>
       <AdditionalIncludeDirectories>$(ProjectDir)\hlsl\include</AdditionalIncludeDirectories>
-      <ObjectFileOutput>$(OutDir)\cso\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>
+      </ObjectFileOutput>
+      <HeaderFileOutput>$(ProjectDir)\include\Dragon\hlsl\%(Filename)$(Configuration).h</HeaderFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -139,6 +143,8 @@
     <ClInclude Include="include\Dragon\GfxSettings.h" />
     <ClInclude Include="include\Dragon\hlsl\DefaultVSDebug.h" />
     <ClInclude Include="include\Dragon\hlsl\DefaultVSRelease.h" />
+    <ClInclude Include="include\Dragon\hlsl\LitPSDebug.h" />
+    <ClInclude Include="include\Dragon\hlsl\LitPSRelease.h" />
     <ClInclude Include="include\Dragon\hlsl\UnlitPSDebug.h" />
     <ClInclude Include="include\Dragon\hlsl\UnlitPSRelease.h" />
     <ClInclude Include="include\Dragon\ImGuiHandle.h" />
@@ -157,6 +163,7 @@
     <ClInclude Include="include\Dragon\Win32Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="hlsl\include\Dragon\CBLighting.hlsli" />
     <None Include="hlsl\include\Dragon\CBObject.hlsli" />
     <None Include="hlsl\include\Dragon\VSInput.hlsli" />
     <None Include="hlsl\include\Dragon\VSOutput.hlsli" />
@@ -167,21 +174,23 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">vs_default_bytecode</VariableName>
-      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)\include\Dragon\hlsl\%(Filename)$(Configuration).h</HeaderFileOutput>
       <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">vs_default_bytecode</VariableName>
-      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)\include\Dragon\hlsl\%(Filename)$(Configuration).h</HeaderFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </ObjectFileOutput>
     </FxCompile>
+    <FxCompile Include="hlsl\src\LitPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ps_lit_bytecode</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ps_lit_bytecode</VariableName>
+    </FxCompile>
     <FxCompile Include="hlsl\src\UnlitPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ps_unlit_bytecode</VariableName>
-      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)\include\Dragon\hlsl\%(Filename)$(Configuration).h</HeaderFileOutput>
       <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ps_unlit_bytecode</VariableName>
-      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)\include\Dragon\hlsl\%(Filename)$(Configuration).h</HeaderFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

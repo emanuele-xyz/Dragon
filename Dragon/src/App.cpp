@@ -189,6 +189,9 @@ namespace Dragon
                     m_renderer.SetCamera(view, projection);
                 }
 
+                // NOTE: update lighting constants
+                m_renderer.SetLighting({ 0.1f, 0.1f, 0.1f }, { -1.0f, -1.0f, -1.0f }, Vector3::One);
+
                 for (auto& obj : objects)
                 {
                     m_renderer.Render(obj.position, obj.rotation, obj.scale, obj.mesh, obj.texture);
