@@ -66,11 +66,11 @@ namespace Dragon
             {
                 if (keyboard.key['Q'])
                 {
-                    RotateAroundTarget(+dt);
+                    RotateAroundTarget(-dt);
                 }
                 if (keyboard.key['E'])
                 {
-                    RotateAroundTarget(-dt);
+                    RotateAroundTarget(+dt);
                 }
 
             }
@@ -78,8 +78,7 @@ namespace Dragon
             // NOTE: vertical movement
             if (mouse.wheel)
             {
-                position.y += mouse.wheel > 0 ? +0.25f : -0.25f; // TODO: to be removed
-                //Move({ 0.0f, mouse.wheel > 0 ? +1.0f : -1.0f, 0.0f }); TODO: use this
+                Move({ 0.0f, mouse.wheel > 0 ? +1.0f : -1.0f, 0.0f });
             }
         }
 

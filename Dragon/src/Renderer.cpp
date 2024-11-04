@@ -82,7 +82,7 @@ namespace Dragon
             SetAnisotropy(0);
         }
 
-        // TODO: camera constants
+        // NOTE: camera constants
         {
             D3D11_BUFFER_DESC desc{};
             desc.ByteWidth = sizeof(CBCamera);
