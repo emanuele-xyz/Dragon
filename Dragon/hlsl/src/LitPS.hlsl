@@ -7,7 +7,6 @@ SamplerState zampler : register(s0);
 
 float4 main(VSOutput input) : SV_TARGET
 {
-    // TODO: update things to new cb_lighting format
     float3 ambient = cb_lighting.ambient_color;
     float3 directional;
     {
