@@ -72,6 +72,9 @@
     <ClCompile Include="src\GfxSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ImGuiEx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Dragon\pch.h">
@@ -159,6 +162,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Dragon\hlsl\CBObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Dragon\ImGuiEx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -118,6 +118,7 @@
     <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\GfxDevice.cpp" />
     <ClCompile Include="src\GfxSettings.cpp" />
+    <ClCompile Include="src\ImGuiEx.cpp" />
     <ClCompile Include="src\ImGuiHandle.cpp" />
     <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\Main.cpp" />
@@ -152,6 +153,7 @@
     <ClInclude Include="include\Dragon\hlsl\LitPSRelease.h" />
     <ClInclude Include="include\Dragon\hlsl\UnlitPSDebug.h" />
     <ClInclude Include="include\Dragon\hlsl\UnlitPSRelease.h" />
+    <ClInclude Include="include\Dragon\ImGuiEx.h" />
     <ClInclude Include="include\Dragon\ImGuiHandle.h" />
     <ClInclude Include="include\Dragon\Input.h" />
     <ClInclude Include="include\Dragon\Math.h" />

@@ -2,6 +2,7 @@
 #include <Dragon/App.h>
 
 #include <imgui.h>
+#include <Dragon/ImGuiEx.h>
 
 #include <Dragon/Math.h> // TODO: to be removed
 #include <Dragon/Mesh.h> // TODO: to be removed?
@@ -72,7 +73,6 @@ namespace Dragon
                 {
                     RotateAroundTarget(+dt);
                 }
-
             }
 
             // NOTE: vertical movement
@@ -114,6 +114,7 @@ namespace Dragon
         auto cube_ref{ m_mesh_mgr.Load("meshes/cube.obj") };
         auto plane_ref{ m_mesh_mgr.Load("meshes/plane.obj") };
         auto capsule_ref{ m_mesh_mgr.Load("meshes/capsule.obj") };
+        auto light_direction_ref{ m_mesh_mgr.Load("meshes/light_direction.obj") };
 
         auto lena_ref{ m_texture_mgr.Load("textures/lena.png") };
         auto proto_floor_ref{ m_texture_mgr.Load("textures/proto_floor.png") };
@@ -123,7 +124,7 @@ namespace Dragon
         {
             Object obj{};
             obj.position = { 0.0f, 1.0f, 0.0f };
-            obj.rotation = Quaternion::CreateFromYawPitchRoll({45.0f, 0.0f, 0.0f});
+            obj.rotation = Quaternion::CreateFromYawPitchRoll({ 45.0f, 0.0f, 0.0f });
             obj.mesh = cube_ref;
             obj.texture = lena_ref;
             objects.emplace_back(obj);
@@ -142,6 +143,11 @@ namespace Dragon
             obj.texture = lena_ref;
             objects.emplace_back(obj);
         }
+
+        Vector3 ambient_color{ 0.1f, 0.1f, 0.1f };
+        Vector3 light_color{ Vector3::One };
+        Vector3 light_direction{ Vector3::Down };
+        Vector3 light_rotation{};
 
         while (m_context.is_running)
         {
@@ -189,17 +195,35 @@ namespace Dragon
                 }
 
                 // NOTE: update lighting constants
-                m_renderer.SetLighting({ 0.1f, 0.1f, 0.1f }, { -1.0f, -1.0f, -1.0f }, Vector3::One);
+                {
+                    auto quat{ Quaternion::CreateFromYawPitchRoll(light_rotation) };
+                    auto conj{ quat };
+                    conj.Conjugate();
+                    Quaternion p{ light_direction, 0 };
+                    auto rotated_p{ quat * p * conj };
+                    m_renderer.SetLighting(ambient_color, { rotated_p.x, rotated_p.y, rotated_p.z }, light_color);
+                }
 
                 for (auto& obj : objects)
                 {
                     m_renderer.Render(obj.position, obj.rotation, obj.scale, obj.mesh, obj.texture);
                 }
+
+                // NOTE: render directional light gizmo
+                m_renderer.Render({ 0.0f, 5.0f, 0.0f }, Quaternion::CreateFromYawPitchRoll(light_rotation), Vector3::One, light_direction_ref, lena_ref);
             }
 
             // NOTE: render ui
             m_imgui.NewFrame();
             {
+                ImGui::Begin("Light Settings");
+                {
+                    ImGuiEx::ColorPicker3("Ambient Color", ambient_color);
+                    ImGuiEx::ColorPicker3("Light Color", light_color);
+                    ImGuiEx::DragFloat3("Light Rotation", light_rotation, 0.01f);
+                }
+                ImGui::End();
+
                 ImGui::Begin("Graphics Settings");
                 {
                     ImGui::Checkbox("V-Sync", &m_gfx_settings.vsync);
