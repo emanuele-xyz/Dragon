@@ -1,8 +1,7 @@
 #include <Dragon/VSInput.hlsli>
 #include <Dragon/VSOutput.hlsli>
 
-#include <Dragon/CBCamera.hlsli>
-#include <Dragon/CBObject.hlsli>
+#include <Dragon/ConstantBuffers.hlsli>
 
 VSOutput main(VSInput input)
 {

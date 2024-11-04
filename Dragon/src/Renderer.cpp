@@ -1,28 +1,18 @@
 #include <Dragon/pch.h>
 #include <Dragon/Renderer.h>
 
+#define float3 Vector3
+#define float4 Vector4
+#define matrix Matrix
+#include <Dragon/hlsl/CBCamera.h>
+#include <Dragon/hlsl/CBObject.h>
+#include <Dragon/hlsl/CBLighting.h>
+#undef float3
+#undef float4
+#undef matrix
+
 namespace Dragon
 {
-    struct CBCamera
-    {
-        Matrix view;
-        Matrix projection;
-    };
-
-    struct CBObject
-    {
-        Matrix model;
-        Matrix normal;
-    };
-
-    // TODO: update this to new layout
-    struct CBLighting
-    {
-        Vector4 ambient_color;
-        Vector4 light_color;
-        Vector4 light_direction;
-    };
-
     Renderer::Renderer(ID3D11Device* device, ID3D11DeviceContext* context)
         : m_device{ device }
         , m_context{ context }
