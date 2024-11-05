@@ -115,6 +115,7 @@ namespace Dragon
         auto plane_ref{ m_mesh_mgr.Load("meshes/plane.obj") };
         auto capsule_ref{ m_mesh_mgr.Load("meshes/capsule.obj") };
         auto light_direction_ref{ m_mesh_mgr.Load("meshes/light_direction.obj") };
+        auto icosphere{ m_mesh_mgr.Load("meshes/icosphere.obj") };
 
         auto lena_ref{ m_texture_mgr.Load("textures/lena.png") };
         auto proto_floor_ref{ m_texture_mgr.Load("textures/proto_floor.png") };
@@ -200,7 +201,7 @@ namespace Dragon
                     auto conj{ quat };
                     conj.Conjugate();
                     Quaternion p{ light_direction, 0 };
-                    auto rotated_p{ quat * p * conj };
+                    auto rotated_p{ conj * p * quat };
                     m_renderer.SetLighting(ambient_color, { rotated_p.x, rotated_p.y, rotated_p.z }, light_color);
                 }
 
