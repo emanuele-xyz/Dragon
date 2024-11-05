@@ -115,11 +115,13 @@ namespace Dragon
         auto plane_ref{ m_mesh_mgr.Load("meshes/plane.obj") };
         auto capsule_ref{ m_mesh_mgr.Load("meshes/capsule.obj") };
         auto light_direction_ref{ m_mesh_mgr.Load("meshes/light_direction.obj") };
-        auto icosphere{ m_mesh_mgr.Load("meshes/icosphere.obj") };
+        auto icosphere_ref{ m_mesh_mgr.Load("meshes/icosphere.obj") };
+        auto soldier_ref{ m_mesh_mgr.Load("meshes/proto_soldier.obj") };
 
         auto lena_ref{ m_texture_mgr.Load("textures/lena.png") };
         auto proto_floor_ref{ m_texture_mgr.Load("textures/proto_floor.png") };
         auto paving_stones_ref{ m_texture_mgr.Load("textures/paving_stones.png") };
+        auto solder_albedo_ref{ m_texture_mgr.Load("textures/proto_soldier.png") };
 
         std::vector<Object> objects{};
         {
@@ -142,6 +144,13 @@ namespace Dragon
             obj.position = { 3.0f, 2.0f, 0.0f };
             obj.mesh = capsule_ref;
             obj.texture = lena_ref;
+            objects.emplace_back(obj);
+        }
+        {
+            Object obj{};
+            obj.position = { 3.0f, 1.0f, 3.0f };
+            obj.mesh = soldier_ref;
+            obj.texture = solder_albedo_ref;
             objects.emplace_back(obj);
         }
 

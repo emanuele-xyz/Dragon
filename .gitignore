@@ -373,3 +373,6 @@ assets
 
 # current working directory folder
 cwd
+
+# blender files
+*.blend
