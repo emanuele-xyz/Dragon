@@ -122,11 +122,13 @@ namespace Dragon
         auto proto_floor_ref{ m_texture_mgr.Load("textures/proto_floor.png") };
         auto paving_stones_ref{ m_texture_mgr.Load("textures/paving_stones.png") };
         auto solder_albedo_ref{ m_texture_mgr.Load("textures/proto_soldier.png") };
+        auto red_ref{ m_texture_mgr.Load("textures/red.png") };
+        auto blue_ref{ m_texture_mgr.Load("textures/blue.png") };
 
         std::vector<Object> objects{};
         {
             Object obj{};
-            obj.position = { 0.0f, 1.0f, 0.0f };
+            obj.position = { 0.0f, 2.0f, 0.0f };
             obj.rotation = Quaternion::CreateFromYawPitchRoll({ 45.0f, 0.0f, 0.0f });
             obj.mesh = cube_ref;
             obj.texture = lena_ref;
@@ -154,10 +156,15 @@ namespace Dragon
             objects.emplace_back(obj);
         }
 
+        // NOTE: lighting data
         Vector3 ambient_color{ 0.1f, 0.1f, 0.1f };
         Vector3 light_color{ Vector3::One };
         Vector3 light_direction{ Vector3::Down };
         Vector3 light_rotation{};
+
+        Vector3 unit_target{};
+        Vector3 pR{};
+        Vector3 pB{};
 
         while (m_context.is_running)
         {
@@ -187,6 +194,37 @@ namespace Dragon
             }
 
             camera.ProcessInput(m_input.GetKeyboard(), m_input.GetMouse(), m_context.last_frame_dt_sec);
+
+            // NOTE: make unit follow the target
+            {
+                const auto& mouse{ m_input.GetMouse() };
+                if (mouse.left)
+                {
+                    int window_x{ mouse.x };
+                    int window_y{ mouse.y };
+                    auto view{ camera.GetViewMatrix() };
+                    auto [client_w, client_h] { m_window.GetClientDimensionsFloat() };
+                    Viewport v{ 0.0f, 0.0f, client_w, client_h };
+
+                    pR = v.Unproject(
+                        { static_cast<float>(window_x), static_cast<float>(window_y), 0.0f },
+                        camera.GetProjectionMatrix(client_w / client_h),
+                        camera.GetViewMatrix(),
+                        Matrix::Identity
+                    );
+                    pR.Normalize();
+                    pR += {4.0f, 4.0f, 4.0f};
+
+                    pB = v.Unproject(
+                        { static_cast<float>(window_x), static_cast<float>(window_y), 1.0f },
+                        camera.GetProjectionMatrix(client_w / client_h),
+                        camera.GetViewMatrix(),
+                        Matrix::Identity
+                    );
+                    pB.Normalize();
+                    pB += {4.0f, 4.0f, 4.0f};
+                }
+            }
 
             // NOTE: render
             {
@@ -221,6 +259,10 @@ namespace Dragon
 
                 // NOTE: render directional light gizmo
                 m_renderer.Render({ 0.0f, 5.0f, 0.0f }, Quaternion::CreateFromYawPitchRoll(light_rotation), Vector3::One, light_direction_ref, lena_ref);
+
+                // NOTE: render unprojected points
+                m_renderer.Render(pR, Quaternion::Identity, Vector3::One * 0.5f, icosphere_ref, red_ref);
+                m_renderer.Render(pB, Quaternion::Identity, Vector3::One * 0.5f, icosphere_ref, blue_ref);
             }
 
             // NOTE: render ui
