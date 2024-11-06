@@ -6,7 +6,7 @@
 namespace Dragon
 {
     GfxSettings::GfxSettings(ID3D11Device* device)
-        : vsync{}
+        : vsync{ true } // TODO: default to false?
         , anisotropy_index{}
         , anisotropy_levels{ D3D11Utils::GetAnisotropyLevels() }
         , anisotropy_descriptions{}
