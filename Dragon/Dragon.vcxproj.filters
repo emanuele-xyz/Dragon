@@ -75,6 +75,9 @@
     <ClCompile Include="src\ImGuiEx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\MathUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Dragon\pch.h">
@@ -95,7 +98,7 @@
     <ClInclude Include="include\Dragon\ImGuiHandle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Dragon\Math.h">
+    <ClInclude Include="include\Dragon\MathUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Dragon\Mesh.h">

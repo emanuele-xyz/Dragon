@@ -122,6 +122,7 @@
     <ClCompile Include="src\ImGuiHandle.cpp" />
     <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\MathUtils.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\MeshMgr.cpp" />
     <ClCompile Include="src\MeshRef.cpp" />
@@ -156,7 +157,7 @@
     <ClInclude Include="include\Dragon\ImGuiEx.h" />
     <ClInclude Include="include\Dragon\ImGuiHandle.h" />
     <ClInclude Include="include\Dragon\Input.h" />
-    <ClInclude Include="include\Dragon\Math.h" />
+    <ClInclude Include="include\Dragon\MathUtils.h" />
     <ClInclude Include="include\Dragon\Mesh.h" />
     <ClInclude Include="include\Dragon\MeshMgr.h" />
     <ClInclude Include="include\Dragon\MeshRef.h" />

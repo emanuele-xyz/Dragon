@@ -4,7 +4,7 @@
 #include <imgui.h>
 #include <Dragon/ImGuiEx.h>
 
-#include <Dragon/Math.h> // TODO: to be removed
+#include <Dragon/MathUtils.h> // TODO: to be removed
 #include <Dragon/Mesh.h> // TODO: to be removed?
 #include <Dragon/Texture.h> // TODO: to be removed?
 
@@ -163,8 +163,6 @@ namespace Dragon
         Vector3 light_rotation{};
 
         Vector3 unit_target{};
-        Vector3 pR{};
-        Vector3 pB{};
 
         while (m_context.is_running)
         {
@@ -200,29 +198,14 @@ namespace Dragon
                 const auto& mouse{ m_input.GetMouse() };
                 if (mouse.left)
                 {
-                    int window_x{ mouse.x };
-                    int window_y{ mouse.y };
+                    int mouse_x{ mouse.x };
+                    int mouse_y{ mouse.y };
                     auto view{ camera.GetViewMatrix() };
                     auto [client_w, client_h] { m_window.GetClientDimensionsFloat() };
                     Viewport v{ 0.0f, 0.0f, client_w, client_h };
-
-                    pR = v.Unproject(
-                        { static_cast<float>(window_x), static_cast<float>(window_y), 0.0f },
-                        camera.GetProjectionMatrix(client_w / client_h),
-                        camera.GetViewMatrix(),
-                        Matrix::Identity
-                    );
-                    pR.Normalize();
-                    pR += {4.0f, 4.0f, 4.0f};
-
-                    pB = v.Unproject(
-                        { static_cast<float>(window_x), static_cast<float>(window_y), 1.0f },
-                        camera.GetProjectionMatrix(client_w / client_h),
-                        camera.GetViewMatrix(),
-                        Matrix::Identity
-                    );
-                    pB.Normalize();
-                    pB += {4.0f, 4.0f, 4.0f};
+                    Vector3 ray_dir{ MathUtils::GetRayFromMouse(mouse_x, mouse_y, v, camera.GetViewMatrix(), camera.GetProjectionMatrix(client_w / client_h)) };
+                    Vector3 ray_origin{ camera.position };
+                    unit_target = MathUtils::IntersectRayPlane(ray_origin, ray_dir, Vector3::Zero, Vector3::Up);
                 }
             }
 
@@ -260,9 +243,8 @@ namespace Dragon
                 // NOTE: render directional light gizmo
                 m_renderer.Render({ 0.0f, 5.0f, 0.0f }, Quaternion::CreateFromYawPitchRoll(light_rotation), Vector3::One, light_direction_ref, lena_ref);
 
-                // NOTE: render unprojected points
-                m_renderer.Render(pR, Quaternion::Identity, Vector3::One * 0.5f, icosphere_ref, red_ref);
-                m_renderer.Render(pB, Quaternion::Identity, Vector3::One * 0.5f, icosphere_ref, blue_ref);
+                // NOTE: render unit target
+                m_renderer.Render(unit_target, Quaternion::Identity, Vector3::One * 0.5f, icosphere_ref, blue_ref);
             }
 
             // NOTE: render ui

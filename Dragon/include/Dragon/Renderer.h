@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Dragon/D3D11Utils.h>
-#include <Dragon/Math.h>
+#include <Dragon/MathUtils.h>
 #include <Dragon/MeshRef.h>
 #include <Dragon/TextureRef.h>
 
