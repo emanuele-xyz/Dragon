@@ -148,13 +148,10 @@ namespace Dragon
             obj.texture = lena_ref;
             objects.emplace_back(obj);
         }
-        {
-            Object obj{};
-            obj.position = { 3.0f, 1.0f, 3.0f };
-            obj.mesh = soldier_ref;
-            obj.texture = solder_albedo_ref;
-            objects.emplace_back(obj);
-        }
+        Object& soldier{ objects.emplace_back() };
+        soldier.position = { 3.0f, 1.0f, 3.0f };
+        soldier.mesh = soldier_ref;
+        soldier.texture = solder_albedo_ref;
 
         // NOTE: lighting data
         Vector3 ambient_color{ 0.1f, 0.1f, 0.1f };
@@ -162,6 +159,7 @@ namespace Dragon
         Vector3 light_direction{ Vector3::Down };
         Vector3 light_rotation{};
 
+        bool unit_has_target{ false };
         Vector3 unit_target{};
 
         while (m_context.is_running)
@@ -193,7 +191,7 @@ namespace Dragon
 
             camera.ProcessInput(m_input.GetKeyboard(), m_input.GetMouse(), m_context.last_frame_dt_sec);
 
-            // NOTE: make unit follow the target
+            // NOTE: set unit target
             {
                 const auto& mouse{ m_input.GetMouse() };
                 if (mouse.left)
@@ -206,6 +204,21 @@ namespace Dragon
                     Vector3 ray_dir{ MathUtils::GetRayFromMouse(mouse_x, mouse_y, v, camera.GetViewMatrix(), camera.GetProjectionMatrix(client_w / client_h)) };
                     Vector3 ray_origin{ camera.position };
                     unit_target = MathUtils::IntersectRayPlane(ray_origin, ray_dir, Vector3::Zero, Vector3::Up);
+                    unit_has_target = true;
+                }
+            }
+
+            // NOTE: make unit follow the target
+            if (unit_has_target)
+            {
+                Vector3 move{ unit_target - Vector3{ soldier.position.x, 0.0f, soldier.position.z } };
+                if (move.LengthSquared() < 0.1f)
+                {
+                    unit_has_target = false;
+                }
+                else
+                {
+                    soldier.position += move * m_context.last_frame_dt_sec;
                 }
             }
 
@@ -244,7 +257,10 @@ namespace Dragon
                 m_renderer.Render({ 0.0f, 5.0f, 0.0f }, Quaternion::CreateFromYawPitchRoll(light_rotation), Vector3::One, light_direction_ref, lena_ref);
 
                 // NOTE: render unit target
-                m_renderer.Render(unit_target, Quaternion::Identity, Vector3::One * 0.5f, icosphere_ref, blue_ref);
+                if (unit_has_target)
+                {
+                    m_renderer.Render(unit_target, Quaternion::Identity, Vector3::One * 0.5f, icosphere_ref, blue_ref);
+                }
             }
 
             // NOTE: render ui
