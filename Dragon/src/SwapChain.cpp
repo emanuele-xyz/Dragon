@@ -24,7 +24,7 @@ namespace Dragon
         CreateRTVAndDSV(msaa_sample_count);
     }
 
-    void SwapChain::Resize()
+    void SwapChain::Resize() 
     {
         // NOTE: get MSAA sample count from rtv
         unsigned msaa_sample_count{};

@@ -23,7 +23,7 @@ namespace Dragon
         ID3D11DepthStencilView* GetDSV() { return m_dsv.Get(); }
     public:
         void SetMSAASampleCount(unsigned msaa_sample_count);
-        void Resize();
+        void Resize(); // TODO: rename to on resize?
         void Present(bool vsync);
     private:
         void CreateRTVAndDSV(unsigned msaa_sample_count);

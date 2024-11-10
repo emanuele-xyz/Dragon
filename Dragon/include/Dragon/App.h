@@ -12,6 +12,8 @@
 #include <Dragon/MeshMgr.h>
 #include <Dragon/TextureMgr.h>
 
+#include <entt/entt.hpp> // TODO: to be removed?
+
 namespace Dragon
 {
     class App
@@ -38,5 +40,6 @@ namespace Dragon
         Renderer m_renderer;
         MeshMgr m_mesh_mgr;
         TextureMgr m_texture_mgr;
+        entt::registry m_registry;
     };
 }

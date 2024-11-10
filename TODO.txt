@@ -1,0 +1,3 @@
+[ ] When fragment gets a lot of directional lighting, with high ambient it looks a bit too much saturated
+[ ] Support base color + blend factor for lit and unlit
+[ ] Maybe merge lit and unlit shaders? (Just use an object constant flag is_lit for example)

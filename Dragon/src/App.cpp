@@ -23,94 +23,172 @@ namespace Dragon
         , m_renderer{ m_gfx_device.GetDevice(), m_gfx_device.GetContext() }
         , m_mesh_mgr{ m_gfx_device.GetDevice() }
         , m_texture_mgr{ m_gfx_device.GetDevice() }
+        , m_registry{}
     {
     }
 
-    struct Object
+    struct CTransform
     {
         Vector3 position{ Vector3::Zero };
         Quaternion rotation{ Quaternion::Identity };
         Vector3 scale{ Vector3::One };
+    };
+
+    struct CMesh
+    {
         MeshRef mesh{};
+    };
+
+    struct CTexture
+    {
         TextureRef texture{};
     };
 
-    struct Camera
+    struct CCamera
     {
-        void ProcessInput(const KeyboardState& keyboard, const MouseState& mouse, float dt)
+        Vector3 target{};
+        float fov_deg{ 45.0f };
+        float z_near{ 0.01f };
+        float z_far{ 100.0f };
+        Matrix view{ Matrix::Identity };
+        Matrix projection{ Matrix::Identity };
+    };
+
+    struct CLighting
+    {
+        Vector3 ambient_color{ 0.1f, 0.1f, 0.1f }; // TODO: why this default?
+        Vector3 light_color{ Vector3::One };
+        Vector3 light_direction{ Vector3::Down };
+        Vector3 light_rotation{};
+    };
+
+    struct CSoldier
+    {
+
+    };
+
+    struct CTarget
+    {
+        Vector3 target{};
+    };
+
+    void SysCameraRun(entt::registry& registry, const KeyboardState& keyboard, const MouseState& mouse, float dt, float aspect)
+    {
+        auto view{ registry.view<CTransform, CCamera>() };
+        auto e{ view.front() };
+        auto [transform, camera] {view.get<CTransform, CCamera>(e)};
+
+        // NOTE: horizontal movement
         {
-            // NOTE: horizontal movement
-            {
-                Vector3 forward{ target - position };
-                forward.y = 0; // project on xz plane
-                Vector3 right{ forward.Cross(Vector3::Up) };
+            Vector3 forward{ camera.target - transform.position };
+            forward.y = 0; // project on xz plane
+            Vector3 right{ forward.Cross(Vector3::Up) };
 
-                if (keyboard.key['W'])
-                {
-                    Move(forward * dt);
-                }
-                if (keyboard.key['S'])
-                {
-                    Move(-forward * dt);
-                }
-                if (keyboard.key['A'])
-                {
-                    Move(-right * dt);
-                }
-                if (keyboard.key['D'])
-                {
-                    Move(right * dt);
-                }
+            Vector3 move{};
+            if (keyboard.key['W'])
+            {
+                move = forward * dt;
+            }
+            if (keyboard.key['S'])
+            {
+                move = -forward * dt;
+            }
+            if (keyboard.key['A'])
+            {
+                move = -right * dt;
+            }
+            if (keyboard.key['D'])
+            {
+                move = right * dt;
             }
 
-            // NOTE: rotate around target
-            {
-                if (keyboard.key['Q'])
-                {
-                    RotateAroundTarget(-dt);
-                }
-                if (keyboard.key['E'])
-                {
-                    RotateAroundTarget(+dt);
-                }
-            }
-
-            // NOTE: vertical movement
-            if (mouse.wheel)
-            {
-                Move({ 0.0f, mouse.wheel > 0 ? +1.0f : -1.0f, 0.0f });
-            }
+            transform.position += move;
+            camera.target += move;
         }
 
-        Matrix GetViewMatrix() const { return Matrix::CreateLookAt(position, target, Vector3::Up); }
-        Matrix GetProjectionMatrix(float aspect) const { return Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(fov_deg), aspect, z_near, z_far); }
-
-        void Move(Vector3 move) { position += move; target += move; }
-        void RotateAroundTarget(float theta)
+        // NOTE: rotate around target
         {
-            Vector3 pos_target_space{ position - target };
+            float theta{};
+            if (keyboard.key['Q'])
+            {
+                theta = -dt;
+            }
+            if (keyboard.key['E'])
+            {
+                theta = +dt;
+            }
+
+            Vector3 pos_target_space{ transform.position - camera.target };
             Matrix rotation{ Matrix::CreateRotationY(theta) };
             Vector3 rotated_pos_target_space{ Vector3::Transform(pos_target_space, rotation) };
-            Vector3 new_pos{ rotated_pos_target_space + target };
-            position = new_pos;
+            Vector3 new_pos{ rotated_pos_target_space + camera.target };
+            transform.position = new_pos;
         }
 
-        Vector3 position;
-        Vector3 target;
-        float fov_deg;
-        float z_near;
-        float z_far;
-    };
+        // NOTE: vertical movement
+        if (mouse.wheel)
+        {
+            Vector3 move{ 0.0f, mouse.wheel > 0 ? +1.0f : -1.0f, 0.0f };
+            transform.position += move;
+            camera.target += move;
+        }
+
+        // NOTE: compute view and projection matrices
+        camera.view = Matrix::CreateLookAt(transform.position, camera.target, Vector3::Up);
+        camera.projection = Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(camera.fov_deg), aspect, camera.z_near, camera.z_far);
+    }
+
+    void SysTargetPickingRun(entt::registry& registry, const MouseState& mouse, float view_w, float view_h)
+    {
+        if (mouse.left)
+        {
+            Vector3 ray_dir{};
+            Vector3 ray_origin{};
+            {
+                auto view{ registry.view<CTransform, CCamera>() };
+                auto e{ view.front() };
+                auto& transform{ registry.get<CTransform>(e) };
+                auto& camera{ registry.get<CCamera>(e) };
+
+                Viewport v{ 0.0f, 0.0f, view_w, view_h };
+                ray_origin = transform.position;
+                ray_dir = MathUtils::GetRayFromMouse(mouse.x, mouse.y, v, camera.view, camera.projection);
+            }
+
+            auto e{ registry.view<CSoldier>().front() };
+            auto& target{ registry.get_or_emplace<CTarget>(e) };
+            target.target = MathUtils::IntersectRayPlane(ray_origin, ray_dir, Vector3::Zero, Vector3::Up);
+        }
+    }
+
+    void SysTargetFollowRun(entt::registry& registry, float dt)
+    {
+        std::vector<entt::entity> remove_target_from{};
+
+        auto view{ registry.view<CTransform, CTarget, CSoldier>() };
+        for (auto e : view)
+        {
+            auto [transform, target] {registry.get<CTransform, CTarget>(e)};
+
+            Vector3 move{ target.target - Vector3{ transform.position.x, 0.0f, transform.position.z } };
+            if (move.LengthSquared() < 0.1f)
+            {
+                remove_target_from.emplace_back(e);
+            }
+            else
+            {
+                transform.position += move * dt;
+            }
+        }
+
+        for (auto e : remove_target_from)
+        {
+            registry.erase<CTarget>(e);
+        }
+    }
 
     void App::Run()
     {
-        Camera camera{};
-        camera.position = { 10.0f, 10.f, 10.0f };
-        camera.target = Vector3::Zero;
-        camera.fov_deg = 45.0f;
-        camera.z_near = 0.01f;
-        camera.z_far = 100.0f;
-
         auto cube_ref{ m_mesh_mgr.Load("meshes/cube.obj") };
         auto plane_ref{ m_mesh_mgr.Load("meshes/plane.obj") };
         auto capsule_ref{ m_mesh_mgr.Load("meshes/capsule.obj") };
@@ -125,42 +203,43 @@ namespace Dragon
         auto red_ref{ m_texture_mgr.Load("textures/red.png") };
         auto blue_ref{ m_texture_mgr.Load("textures/blue.png") };
 
-        std::vector<Object> objects{};
+        // NOTE: create camera
         {
-            Object obj{};
-            obj.position = { 0.0f, 2.0f, 0.0f };
-            obj.rotation = Quaternion::CreateFromYawPitchRoll({ 45.0f, 0.0f, 0.0f });
-            obj.mesh = cube_ref;
-            obj.texture = lena_ref;
-            objects.emplace_back(obj);
+            auto e{ m_registry.create() };
+            auto& t{ m_registry.emplace<CTransform>(e) };
+            t.position = { 10.0f, 10.f, 10.0f };
+            auto& c{ m_registry.emplace<CCamera>(e) };
+            c.target = Vector3::Zero;
         }
-        {
-            Object obj{};
-            obj.scale = { 20.0f, 1.0f, 20.0f };
-            obj.mesh = plane_ref;
-            obj.texture = proto_floor_ref;
-            objects.emplace_back(obj);
-        }
-        {
-            Object obj{};
-            obj.position = { 3.0f, 2.0f, 0.0f };
-            obj.mesh = capsule_ref;
-            obj.texture = lena_ref;
-            objects.emplace_back(obj);
-        }
-        Object& soldier{ objects.emplace_back() };
-        soldier.position = { 3.0f, 1.0f, 3.0f };
-        soldier.mesh = soldier_ref;
-        soldier.texture = solder_albedo_ref;
 
-        // NOTE: lighting data
-        Vector3 ambient_color{ 0.1f, 0.1f, 0.1f };
-        Vector3 light_color{ Vector3::One };
-        Vector3 light_direction{ Vector3::Down };
-        Vector3 light_rotation{};
+        // NOTE: create floor
+        {
+            auto e{ m_registry.create() };
+            auto& transform{ m_registry.emplace<CTransform>(e) };
+            transform.scale = Vector3::One * 10.0f;
+            auto& m{ m_registry.emplace<CMesh>(e) };
+            m.mesh = plane_ref;
+            auto& t{ m_registry.emplace<CTexture>(e) };
+            t.texture = proto_floor_ref;
+        }
 
-        bool unit_has_target{ false };
-        Vector3 unit_target{};
+        // NOTE: create soldier
+        {
+            auto e{ m_registry.create() };
+            auto& transform{ m_registry.emplace<CTransform>(e) };
+            transform.position = { 0.0f, 1.0f, 0.0f };
+            m_registry.emplace<CSoldier>(e);
+            auto& m{ m_registry.emplace<CMesh>(e) };
+            m.mesh = soldier_ref;
+            auto& t{ m_registry.emplace<CTexture>(e) };
+            t.texture = solder_albedo_ref;
+        }
+
+        // NOTE: create lighting
+        {
+            auto e{ m_registry.create() };
+            m_registry.emplace<CLighting>(e);
+        }
 
         while (m_context.is_running)
         {
@@ -189,77 +268,57 @@ namespace Dragon
                 m_input.Update(window_messages);
             }
 
-            camera.ProcessInput(m_input.GetKeyboard(), m_input.GetMouse(), m_context.last_frame_dt_sec);
+            auto [client_w, client_h] { m_window.GetClientDimensionsFloat() };
+            float aspect{ client_w / client_h };
 
-            // NOTE: set unit target
-            {
-                const auto& mouse{ m_input.GetMouse() };
-                if (mouse.left)
-                {
-                    int mouse_x{ mouse.x };
-                    int mouse_y{ mouse.y };
-                    auto view{ camera.GetViewMatrix() };
-                    auto [client_w, client_h] { m_window.GetClientDimensionsFloat() };
-                    Viewport v{ 0.0f, 0.0f, client_w, client_h };
-                    Vector3 ray_dir{ MathUtils::GetRayFromMouse(mouse_x, mouse_y, v, camera.GetViewMatrix(), camera.GetProjectionMatrix(client_w / client_h)) };
-                    Vector3 ray_origin{ camera.position };
-                    unit_target = MathUtils::IntersectRayPlane(ray_origin, ray_dir, Vector3::Zero, Vector3::Up);
-                    unit_has_target = true;
-                }
-            }
-
-            // NOTE: make unit follow the target
-            if (unit_has_target)
-            {
-                Vector3 move{ unit_target - Vector3{ soldier.position.x, 0.0f, soldier.position.z } };
-                if (move.LengthSquared() < 0.1f)
-                {
-                    unit_has_target = false;
-                }
-                else
-                {
-                    soldier.position += move * m_context.last_frame_dt_sec;
-                }
-            }
+            SysCameraRun(m_registry, m_input.GetKeyboard(), m_input.GetMouse(), m_context.last_frame_dt_sec, aspect);
+            SysTargetPickingRun(m_registry, m_input.GetMouse(), client_w, client_h);
+            SysTargetFollowRun(m_registry, m_context.last_frame_dt_sec);
 
             // NOTE: render
             {
                 auto rtv{ m_swap_chain.GetRTV() };
                 auto dsv{ m_swap_chain.GetDSV() };
-                auto [client_w, client_h] { m_window.GetClientDimensionsFloat() };
 
                 m_renderer.NewFrame(rtv, dsv, client_w, client_h);
 
                 // NOTE: update camera constants
                 {
-                    float aspect{ client_w / client_h };
-                    auto view{ camera.GetViewMatrix() };
-                    auto projection{ camera.GetProjectionMatrix(aspect) };
-                    m_renderer.SetCamera(view, projection);
+                    const auto& camera{ m_registry.get<CCamera>(m_registry.view<CCamera>().front()) };
+                    m_renderer.SetCamera(camera.view, camera.projection);
                 }
 
                 // NOTE: update lighting constants
                 {
-                    auto quat{ Quaternion::CreateFromYawPitchRoll(light_rotation) };
+                    const auto& lighting{ m_registry.get<CLighting>(m_registry.view<CLighting>().front()) };
+
+                    auto quat{ Quaternion::CreateFromYawPitchRoll(lighting.light_rotation) };
                     auto conj{ quat };
                     conj.Conjugate();
-                    Quaternion p{ light_direction, 0 };
+                    Quaternion p{ lighting.light_direction, 0 };
                     auto rotated_p{ conj * p * quat };
-                    m_renderer.SetLighting(ambient_color, { rotated_p.x, rotated_p.y, rotated_p.z }, light_color);
+                    m_renderer.SetLighting(lighting.ambient_color, { rotated_p.x, rotated_p.y, rotated_p.z }, lighting.light_color);
                 }
 
-                for (auto& obj : objects)
+                // NOTE: render
+                for (auto e : m_registry.view<CTransform, CMesh, CTexture>())
                 {
-                    m_renderer.Render(obj.position, obj.rotation, obj.scale, obj.mesh, obj.texture);
+                    const auto& [transform, mesh, texture] {m_registry.get<CTransform, CMesh, CTexture>(e)};
+                    m_renderer.Render(transform.position, transform.rotation, transform.scale, mesh.mesh, texture.texture);
                 }
 
                 // NOTE: render directional light gizmo
-                m_renderer.Render({ 0.0f, 5.0f, 0.0f }, Quaternion::CreateFromYawPitchRoll(light_rotation), Vector3::One, light_direction_ref, lena_ref);
-
-                // NOTE: render unit target
-                if (unit_has_target)
                 {
-                    m_renderer.Render(unit_target, Quaternion::Identity, Vector3::One * 0.5f, icosphere_ref, blue_ref);
+                    const auto& lighting{ m_registry.get<CLighting>(m_registry.view<CLighting>().front()) };
+                    // TODO: find a better way to do it
+                    m_renderer.Render({ 0.0f, 5.0f, 0.0f }, Quaternion::CreateFromYawPitchRoll(lighting.light_rotation), Vector3::One, light_direction_ref, lena_ref);
+                }
+
+                // NOTE: render unit target gizmo
+                for (auto e : m_registry.view<CTarget>())
+                {
+                    const auto& target{ m_registry.get<CTarget>(e) };
+                    m_renderer.Render(target.target, Quaternion::Identity, Vector3::One * 0.5f, icosphere_ref, blue_ref);
                 }
             }
 
@@ -268,9 +327,10 @@ namespace Dragon
             {
                 ImGui::Begin("Light Settings");
                 {
-                    ImGuiEx::ColorPicker3("Ambient Color", ambient_color);
-                    ImGuiEx::ColorPicker3("Light Color", light_color);
-                    ImGuiEx::DragFloat3("Light Rotation", light_rotation, 0.01f);
+                    auto& lighting{ m_registry.get<CLighting>(m_registry.view<CLighting>().front()) };
+                    ImGuiEx::ColorPicker3("Ambient Color", lighting.ambient_color);
+                    ImGuiEx::ColorPicker3("Light Color", lighting.light_color);
+                    ImGuiEx::DragFloat3("Light Rotation", lighting.light_rotation, 0.01f);
                 }
                 ImGui::End();
 
