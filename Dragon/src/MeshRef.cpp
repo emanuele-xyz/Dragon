@@ -13,7 +13,7 @@ namespace Dragon
     }
     MeshRef::~MeshRef()
     {
-        (*m_ref_count)--;
+        if (m_ref_count) (*m_ref_count)--;
     }
     MeshRef::MeshRef(const MeshRef& other)
         : m_ref_count{}

@@ -163,29 +163,31 @@ namespace Dragon
         constants->light_direction = { light_direction.x, light_direction.y, light_direction.z, 0.0f };
     }
 
-    void Renderer::Render(Vector3 position, Quaternion rotation, Vector3 scaling, MeshRef mesh, TextureRef texture, bool is_lit)
+    void Renderer::Render(RenderCfg& cfg)
     {
         // NOTE: update object constants
         {
             D3D11Utils::SubresourceMapping subres_mapping{ m_context, m_cb_object.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0 };
             auto constants{ static_cast<CBObject*>(subres_mapping.GetSubresource().pData) };
-            Matrix translate{ Matrix::CreateTranslation(position) };
-            Matrix rotate{ Matrix::CreateFromQuaternion(rotation) };
-            Matrix scale{ Matrix::CreateScale(scaling) };
+            Matrix translate{ Matrix::CreateTranslation(cfg.position) };
+            Matrix rotate{ Matrix::CreateFromQuaternion(cfg.rotation) };
+            Matrix scale{ Matrix::CreateScale(cfg.scaling) };
             Matrix model{ scale * rotate * translate };
             Matrix normal{ scale * rotate };
             normal.Invert();
             normal.Transpose();
             constants->model = model;
             constants->normal = normal;
-            constants->is_lit = static_cast<int>(is_lit);
+            constants->color = cfg.color;
+            constants->blend_factor = cfg.blend_factor;
+            constants->is_lit = static_cast<int>(cfg.is_lit);
         }
 
-        m_context->IASetIndexBuffer(mesh->GetIndices(), DXGI_FORMAT_R32_UINT, 0);
-        m_context->IASetVertexBuffers(0, mesh->GetVertexBufferCount(), mesh->GetVertexBuffers(), mesh->GetStrides(), mesh->GetOffsets());
-        m_context->PSSetShaderResources(0, 1, texture->GetAddressOfSRV());
+        m_context->IASetIndexBuffer(cfg.mesh->GetIndices(), DXGI_FORMAT_R32_UINT, 0);
+        m_context->IASetVertexBuffers(0, cfg.mesh->GetVertexBufferCount(), cfg.mesh->GetVertexBuffers(), cfg.mesh->GetStrides(), cfg.mesh->GetOffsets());
+        if (cfg.blend_factor != 1.0f) m_context->PSSetShaderResources(0, 1, cfg.texture->GetAddressOfSRV());
 
-        m_context->DrawIndexed(mesh->GetIndexCount(), 0, 0);
+        m_context->DrawIndexed(cfg.mesh->GetIndexCount(), 0, 0);
     }
 
     void Renderer::SetAnisotropy(unsigned anisotropy)

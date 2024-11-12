@@ -7,3 +7,5 @@
 [ ] Draw AABB (wireframe)
 [ ] Support base color + blend factor for lit and unlit
 [x] Merge lit and unlit pixel shaders
+
+[ ] I have discovered some strange bug where the input gets stuck. I dunno why. Maybe ImGui capture and mouse state tracking?

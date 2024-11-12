@@ -13,7 +13,7 @@ namespace Dragon
     }
     TextureRef::~TextureRef()
     {
-        (*m_ref_count)--;
+        if (m_ref_count) (*m_ref_count)--;
     }
     TextureRef::TextureRef(const TextureRef& other)
         : m_ref_count{}

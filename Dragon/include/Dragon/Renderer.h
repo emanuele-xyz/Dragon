@@ -9,6 +9,18 @@
 
 namespace Dragon
 {
+    struct RenderCfg
+    {
+        Vector3 position{};
+        Quaternion rotation{ Quaternion::Identity };
+        Vector3 scaling{ Vector3::One };
+        MeshRef mesh{};
+        TextureRef texture{};
+        bool is_lit{ true };
+        Vector3 color{ Vector3::One };
+        float blend_factor{ 0.0f }; // 0 for albedo texture, 1 for full color
+    };
+
     class Renderer
     {
     public:
@@ -22,7 +34,7 @@ namespace Dragon
         void NewFrame(ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, float w, float h);
         void SetCamera(const Matrix& view, const Matrix& projection);
         void SetLighting(Vector3 ambient_color, Vector3 light_direction, Vector3 light_color);
-        void Render(Vector3 position, Quaternion rotation, Vector3 scaling, MeshRef mesh, TextureRef texture, bool is_lit = true);
+        void Render(RenderCfg& cfg);
     public:
         void SetAnisotropy(unsigned anisotropy);
         size_t GetAnisotropyIndex() { return 0; }

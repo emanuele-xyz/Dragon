@@ -304,21 +304,40 @@ namespace Dragon
                 for (auto e : m_registry.view<CTransform, CMesh, CTexture>())
                 {
                     const auto& [transform, mesh, texture] {m_registry.get<CTransform, CMesh, CTexture>(e)};
-                    m_renderer.Render(transform.position, transform.rotation, transform.scale, mesh.mesh, texture.texture);
+                    RenderCfg cfg{};
+                    cfg.position = transform.position;
+                    cfg.rotation = transform.rotation;
+                    cfg.scaling = transform.scale;
+                    cfg.mesh = mesh.mesh;
+                    cfg.texture = texture.texture;
+                    m_renderer.Render(cfg);
                 }
 
                 // NOTE: render directional light gizmo
                 {
                     const auto& lighting{ m_registry.get<CLighting>(m_registry.view<CLighting>().front()) };
-                    // TODO: find a better way to do it
-                    m_renderer.Render({ 0.0f, 5.0f, 0.0f }, Quaternion::CreateFromYawPitchRoll(lighting.light_rotation), Vector3::One, light_direction_ref, lena_ref);
+                    RenderCfg cfg{};
+                    cfg.position = { 0.0f, 5.0f, 0.0f }; // TODO: find a better way to do it
+                    cfg.rotation = Quaternion::CreateFromYawPitchRoll(lighting.light_rotation);
+                    cfg.mesh = light_direction_ref;
+                    cfg.is_lit = false;
+                    cfg.color = lighting.light_color;
+                    cfg.blend_factor = 1.0f;
+                    m_renderer.Render(cfg);
                 }
 
                 // NOTE: render unit target gizmo
                 for (auto e : m_registry.view<CTarget>())
                 {
                     const auto& target{ m_registry.get<CTarget>(e) };
-                    m_renderer.Render(target.target, Quaternion::Identity, Vector3::One * 0.5f, icosphere_ref, blue_ref);
+                    RenderCfg cfg{};
+                    cfg.position = target.target;
+                    cfg.scaling = Vector3::One * 0.5f;
+                    cfg.mesh = icosphere_ref;
+                    cfg.is_lit = false;
+                    cfg.color = { 0.0f, 0.0f, 1.0f };
+                    cfg.blend_factor = 1.0f;
+                    m_renderer.Render(cfg);
                 }
             }
 
