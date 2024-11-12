@@ -167,8 +167,17 @@ namespace Win32Utils
         }
         else
         {
-            auto window{ reinterpret_cast<WindowHandle*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
-            result = window->OnMSG(hwnd, msg, wparam, lparam);
+            bool is_imgui_initialized{ ImGui::GetCurrentContext() != nullptr };
+            bool is_message_captured{ is_imgui_initialized && (ImGui::GetIO().WantCaptureMouse || ImGui::GetIO().WantCaptureKeyboard) };
+            if (is_message_captured)
+            {
+                result = 1;
+            }
+            else
+            {
+                auto window{ reinterpret_cast<WindowHandle*>(GetWindowLongPtr(hwnd, GWLP_USERDATA)) };
+                result = window->OnMSG(hwnd, msg, wparam, lparam);
+            }
         }
         return result;
     }
