@@ -21,17 +21,14 @@ namespace Dragon
         {
             #if defined(_DEBUG)
             #include <Dragon/hlsl/DefaultVSDebug.h> // for vs_default_bytecode
-            #include <Dragon/hlsl/UnlitPSDebug.h> // for ps_unlit_bytecode
-            #include <Dragon/hlsl/LitPSDebug.h> // for ps_unlit_bytecode
+            #include <Dragon/hlsl/DefaultPSDebug.h> // for ps_default_bytecode
             #else
             #include <Dragon/hlsl/DefaultVSRelease.h> // for vs_default_bytecode
-            #include <Dragon/hlsl/UnlitPSRelease.h> // for ps_unlit_bytecode
-            #include <Dragon/hlsl/LitPSRelease.h> // for ps_unlit_bytecode
+            #include <Dragon/hlsl/DefaultPSRelease.h> // for ps_default_bytecode
             #endif
 
             m_vs_default = D3D11Utils::LoadVertexShaderFromBytecode(m_device, vs_default_bytecode, Dragon_CountOf(vs_default_bytecode));
-            m_ps_unlit = D3D11Utils::LoadPixelShaderFromBytecode(m_device, ps_unlit_bytecode, Dragon_CountOf(ps_unlit_bytecode));
-            m_ps_lit = D3D11Utils::LoadPixelShaderFromBytecode(m_device, ps_lit_bytecode, Dragon_CountOf(ps_lit_bytecode));
+            m_ps_default = D3D11Utils::LoadPixelShaderFromBytecode(m_device, ps_default_bytecode, Dragon_CountOf(ps_default_bytecode));
 
             D3D11_INPUT_ELEMENT_DESC desc[]
             {
@@ -144,8 +141,7 @@ namespace Dragon
         m_context->IASetInputLayout(m_input_layout.Get());
         m_context->VSSetShader(m_vs_default.Get(), nullptr, 0);
         m_context->VSSetConstantBuffers(0, static_cast<UINT>(m_constant_buffers.size()), m_constant_buffers.data());
-        //m_context->PSSetShader(m_ps_unlit.Get(), nullptr, 0);
-        m_context->PSSetShader(m_ps_lit.Get(), nullptr, 0);
+        m_context->PSSetShader(m_ps_default.Get(), nullptr, 0);
         m_context->PSSetConstantBuffers(0, static_cast<UINT>(m_constant_buffers.size()), m_constant_buffers.data());
         m_context->PSSetSamplers(0, 1, m_sampler_state_default.GetAddressOf());
     }
@@ -167,7 +163,7 @@ namespace Dragon
         constants->light_direction = { light_direction.x, light_direction.y, light_direction.z, 0.0f };
     }
 
-    void Renderer::Render(Vector3 position, Quaternion rotation, Vector3 scaling, MeshRef mesh, TextureRef texture)
+    void Renderer::Render(Vector3 position, Quaternion rotation, Vector3 scaling, MeshRef mesh, TextureRef texture, bool is_lit)
     {
         // NOTE: update object constants
         {
@@ -182,6 +178,7 @@ namespace Dragon
             normal.Transpose();
             constants->model = model;
             constants->normal = normal;
+            constants->is_lit = static_cast<int>(is_lit);
         }
 
         m_context->IASetIndexBuffer(mesh->GetIndices(), DXGI_FORMAT_R32_UINT, 0);

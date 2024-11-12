@@ -6,3 +6,4 @@
 [ ] Build AABB from mesh data
 [ ] Draw AABB (wireframe)
 [ ] Support base color + blend factor for lit and unlit
+[x] Merge lit and unlit pixel shaders

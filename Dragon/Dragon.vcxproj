@@ -148,12 +148,10 @@
     <ClInclude Include="include\Dragon\hlsl\CBCamera.h" />
     <ClInclude Include="include\Dragon\hlsl\CBLighting.h" />
     <ClInclude Include="include\Dragon\hlsl\CBObject.h" />
+    <ClInclude Include="include\Dragon\hlsl\DefaultPSDebug.h" />
+    <ClInclude Include="include\Dragon\hlsl\DefaultPSRelease.h" />
     <ClInclude Include="include\Dragon\hlsl\DefaultVSDebug.h" />
     <ClInclude Include="include\Dragon\hlsl\DefaultVSRelease.h" />
-    <ClInclude Include="include\Dragon\hlsl\LitPSDebug.h" />
-    <ClInclude Include="include\Dragon\hlsl\LitPSRelease.h" />
-    <ClInclude Include="include\Dragon\hlsl\UnlitPSDebug.h" />
-    <ClInclude Include="include\Dragon\hlsl\UnlitPSRelease.h" />
     <ClInclude Include="include\Dragon\ImGuiEx.h" />
     <ClInclude Include="include\Dragon\ImGuiHandle.h" />
     <ClInclude Include="include\Dragon\Input.h" />
@@ -197,27 +195,17 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="hlsl\src\DefaultPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ps_default_bytecode</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ps_default_bytecode</VariableName>
+    </FxCompile>
     <FxCompile Include="hlsl\src\DefaultVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">vs_default_bytecode</VariableName>
       <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">vs_default_bytecode</VariableName>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ObjectFileOutput>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </ObjectFileOutput>
-    </FxCompile>
-    <FxCompile Include="hlsl\src\LitPS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ps_lit_bytecode</VariableName>
-      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ps_lit_bytecode</VariableName>
-    </FxCompile>
-    <FxCompile Include="hlsl\src\UnlitPS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ps_unlit_bytecode</VariableName>
-      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ps_unlit_bytecode</VariableName>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
