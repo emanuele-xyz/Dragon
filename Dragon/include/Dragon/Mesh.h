@@ -14,6 +14,7 @@ namespace Dragon
     {
     public:
         Mesh(ID3D11Device* device, const std::filesystem::path& path);
+        Mesh(ID3D11Device* device, unsigned vertex_count, unsigned index_count, float* positions, float* normals, float* uvs, uint32_t* indices);
         ~Mesh() = default;
         Mesh(const Mesh&) = delete;
         Mesh(Mesh&&) noexcept = delete;
@@ -27,8 +28,8 @@ namespace Dragon
         ID3D11Buffer** GetVertexBuffers() { return m_vertex_buffers; }
         ID3D11Buffer* GetIndices() { return m_indices.Get(); }
     private:
-        unsigned int m_vertex_count;
-        unsigned int m_index_count;
+        unsigned m_vertex_count;
+        unsigned m_index_count;
         wrl::ComPtr<ID3D11Buffer> m_positions;
         wrl::ComPtr<ID3D11Buffer> m_normals;
         wrl::ComPtr<ID3D11Buffer> m_uvs;

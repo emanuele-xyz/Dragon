@@ -339,6 +339,28 @@ namespace Dragon
                     cfg.blend_factor = 1.0f;
                     m_renderer.Render(cfg);
                 }
+
+                // TODO: to be removed
+                {
+                    Vector3 p_min{ 1.0f, 2.0f, 5.0f };
+                    Vector3 p_max{ p_min + Vector3{4.0f, 2.0f, 1.0f} };
+
+                    RenderCfg cfg{};
+                    cfg.scaling = Vector3::One * 0.1f;
+                    cfg.mesh = icosphere_ref;
+                    cfg.is_lit = false;
+                    cfg.blend_factor = 1.0f;
+
+                    cfg.position = p_min;
+                    cfg.color = { 1.0f, 0.0f, 0.0f };
+                    m_renderer.Render(cfg);
+
+                    cfg.position = p_max;
+                    cfg.color = { 0.0f, 1.0f, 0.0f };
+                    m_renderer.Render(cfg);
+
+                    m_renderer.RenderAABB(p_min, p_max, Vector3::One); // TODO: to be removed
+                }
             }
 
             // NOTE: render ui

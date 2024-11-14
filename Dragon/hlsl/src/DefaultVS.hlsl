@@ -1,7 +1,6 @@
 #include <Dragon/VSInput.hlsli>
 #include <Dragon/VSOutput.hlsli>
-
-#include <Dragon/ConstantBuffers.hlsli>
+#include <Dragon/CBBindings.hlsli>
 
 VSOutput main(VSInput input)
 {

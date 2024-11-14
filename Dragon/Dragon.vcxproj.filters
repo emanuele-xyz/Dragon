@@ -168,7 +168,7 @@
   <ItemGroup>
     <None Include="hlsl\include\Dragon\VSInput.hlsli" />
     <None Include="hlsl\include\Dragon\VSOutput.hlsli" />
-    <None Include="hlsl\include\Dragon\ConstantBuffers.hlsli" />
+    <None Include="hlsl\include\Dragon\CBBindings.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\src\DefaultVS.hlsl" />

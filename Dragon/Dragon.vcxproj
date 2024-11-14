@@ -183,7 +183,7 @@
       <DestinationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).h</DestinationFileName>
       <DestinationFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).h</DestinationFileName>
     </CopyFileToFolders>
-    <None Include="hlsl\include\Dragon\ConstantBuffers.hlsli" />
+    <None Include="hlsl\include\Dragon\CBBindings.hlsli" />
     <None Include="hlsl\include\Dragon\VSInput.hlsli" />
     <None Include="hlsl\include\Dragon\VSOutput.hlsli" />
     <CopyFileToFolders Include="hlsl\include\Dragon\CBCamera.hlsli">

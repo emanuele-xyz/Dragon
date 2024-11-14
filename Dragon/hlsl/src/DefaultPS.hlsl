@@ -1,6 +1,5 @@
 #include <Dragon/VSOutput.hlsli>
-
-#include <Dragon/ConstantBuffers.hlsli>
+#include <Dragon/CBBindings.hlsli>
 
 Texture2D albedo_texture : register(t0);
 SamplerState zampler : register(s0);

@@ -117,6 +117,43 @@ namespace Dragon
             Dragon_CheckHR(m_device->CreateBuffer(&desc, nullptr, m_cb_lighting.ReleaseAndGetAddressOf()));
             m_constant_buffers.emplace_back(m_cb_lighting.Get());
         }
+
+        // NOTE: AABB mesh
+        {
+            float positions[]
+            {
+                +0.5f, +0.5f, +0.5f, // right -  up  - forward
+                -0.5f, +0.5f, +0.5f, // left  -  up  - forward
+                -0.5f, +0.5f, -0.5f, // left  -  up  - back
+                +0.5f, +0.5f, -0.5f, // right -  up  - back
+                +0.5f, -0.5f, +0.5f, // right - down - forward
+                -0.5f, -0.5f, +0.5f, // left  - down - forward
+                -0.5f, -0.5f, -0.5f, // left  - down - back
+                +0.5f, -0.5f, -0.5f, // right - down - back
+            };
+            float normals[Dragon_CountOf(positions)]{};
+            float uvs[Dragon_CountOf(positions)]{};
+
+            uint32_t indices[]
+            {
+                0, 1,
+                1, 2,
+                2, 3,
+                3, 0,
+                4, 5,
+                5, 6,
+                6, 7,
+                7, 4,
+                0, 4,
+                1, 5,
+                2, 6,
+                3, 7,
+            };
+
+            unsigned vertex_count{ Dragon_CountOf(positions) };
+            unsigned index_count{ Dragon_CountOf(indices) };
+            m_aabb_mesh = std::make_unique<Mesh>(m_device, vertex_count, index_count, positions, normals, uvs, indices);
+        }
     }
 
     void Renderer::NewFrame(ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, float w, float h)
@@ -137,7 +174,6 @@ namespace Dragon
         m_context->RSSetState(m_rasterizer_state_default.Get());
         m_context->OMSetRenderTargets(1, &rtv, dsv);
         m_context->OMSetDepthStencilState(m_depth_stencil_state_default.Get(), 0);
-        m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         m_context->IASetInputLayout(m_input_layout.Get());
         m_context->VSSetShader(m_vs_default.Get(), nullptr, 0);
         m_context->VSSetConstantBuffers(0, static_cast<UINT>(m_constant_buffers.size()), m_constant_buffers.data());
@@ -165,6 +201,9 @@ namespace Dragon
 
     void Renderer::Render(RenderCfg& cfg)
     {
+        // NOTE: set state
+        m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
         // NOTE: update object constants
         {
             D3D11Utils::SubresourceMapping subres_mapping{ m_context, m_cb_object.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0 };
@@ -188,6 +227,29 @@ namespace Dragon
         if (cfg.blend_factor != 1.0f) m_context->PSSetShaderResources(0, 1, cfg.texture->GetAddressOfSRV());
 
         m_context->DrawIndexed(cfg.mesh->GetIndexCount(), 0, 0);
+    }
+
+    void Renderer::RenderAABB(Vector3 p_min, Vector3 p_max, Vector3 color)
+    {
+        // NOTE: set state
+        m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+        // NOTE: update object constants
+        {
+            D3D11Utils::SubresourceMapping subres_mapping{ m_context, m_cb_object.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0 };
+            auto constants{ static_cast<CBObject*>(subres_mapping.GetSubresource().pData) };
+            Matrix translate{ Matrix::CreateTranslation(0.5f * (p_min + p_max)) };
+            Matrix scale{ Matrix::CreateScale(p_max - p_min) };
+            Matrix model{ scale * translate };
+            constants->model = model;
+            constants->color = color;
+            constants->blend_factor = 1.0f;
+            constants->is_lit = false;
+        }
+
+        m_context->IASetIndexBuffer(m_aabb_mesh->GetIndices(), DXGI_FORMAT_R32_UINT, 0);
+        m_context->IASetVertexBuffers(0, m_aabb_mesh->GetVertexBufferCount(), m_aabb_mesh->GetVertexBuffers(), m_aabb_mesh->GetStrides(), m_aabb_mesh->GetOffsets());
+        m_context->DrawIndexed(m_aabb_mesh->GetIndexCount(), 0, 0);
     }
 
     void Renderer::SetAnisotropy(unsigned anisotropy)

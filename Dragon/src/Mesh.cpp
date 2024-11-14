@@ -9,15 +9,6 @@
 namespace Dragon
 {
     Mesh::Mesh(ID3D11Device* device, const std::filesystem::path& path)
-        : m_vertex_count{}
-        , m_index_count{}
-        , m_positions{}
-        , m_normals{}
-        , m_uvs{}
-        , m_indices{}
-        , m_vertex_buffers{}
-        , m_strides{}
-        , m_offsets{}
     {
         Assimp::Importer importer{};
         const aiScene* scene{ importer.ReadFile(path.string(), aiProcess_Triangulate | aiProcess_FlipUVs) };
@@ -135,6 +126,92 @@ namespace Dragon
 
             D3D11_SUBRESOURCE_DATA subres_data{};
             subres_data.pSysMem = indices.get();
+            subres_data.SysMemPitch = 0;
+            subres_data.SysMemSlicePitch = 0;
+
+            m_indices = D3D11Utils::CreateBuffer(device, &desc, &subres_data);
+        }
+    }
+
+    Mesh::Mesh(ID3D11Device* device, unsigned vertex_count, unsigned index_count, float* positions, float* normals, float* uvs, uint32_t* indices)
+        : m_vertex_count{ vertex_count }
+        , m_index_count{ index_count }
+    {
+        // NOTE: upload vertices
+        {
+            D3D11_BUFFER_DESC desc{};
+            desc.ByteWidth = m_vertex_count * DRAGON_MESH_FLOATS_PER_POSITION * sizeof(float);
+            desc.Usage = D3D11_USAGE_IMMUTABLE;
+            desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+            desc.CPUAccessFlags = 0;
+            desc.MiscFlags = 0;
+            desc.StructureByteStride = 0;
+
+            D3D11_SUBRESOURCE_DATA subres_data{};
+            subres_data.pSysMem = positions;
+            subres_data.SysMemPitch = 0;
+            subres_data.SysMemSlicePitch = 0;
+
+            m_positions = D3D11Utils::CreateBuffer(device, &desc, &subres_data);
+            m_vertex_buffers[0] = m_positions.Get();
+            m_strides[0] = DRAGON_MESH_FLOATS_PER_POSITION * sizeof(float);
+            m_offsets[0] = 0;
+        }
+
+        // NOTE: upload normals
+        {
+            D3D11_BUFFER_DESC desc{};
+            desc.ByteWidth = m_vertex_count * DRAGON_MESH_FLOATS_PER_NORMAL * sizeof(float);
+            desc.Usage = D3D11_USAGE_IMMUTABLE;
+            desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+            desc.CPUAccessFlags = 0;
+            desc.MiscFlags = 0;
+            desc.StructureByteStride = 0;
+
+            D3D11_SUBRESOURCE_DATA subres_data{};
+            subres_data.pSysMem = normals;
+            subres_data.SysMemPitch = 0;
+            subres_data.SysMemSlicePitch = 0;
+
+            m_normals = D3D11Utils::CreateBuffer(device, &desc, &subres_data);
+            m_vertex_buffers[1] = m_normals.Get();
+            m_strides[1] = DRAGON_MESH_FLOATS_PER_NORMAL * sizeof(float);
+            m_offsets[1] = 0;
+        }
+
+        // NOTE: upload uvs
+        {
+            D3D11_BUFFER_DESC desc{};
+            desc.ByteWidth = m_vertex_count * DRAGON_MESH_FLOATS_PER_UV * sizeof(float);
+            desc.Usage = D3D11_USAGE_IMMUTABLE;
+            desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+            desc.CPUAccessFlags = 0;
+            desc.MiscFlags = 0;
+            desc.StructureByteStride = 0;
+
+            D3D11_SUBRESOURCE_DATA subres_data{};
+            subres_data.pSysMem = uvs;
+            subres_data.SysMemPitch = 0;
+            subres_data.SysMemSlicePitch = 0;
+
+            m_uvs = D3D11Utils::CreateBuffer(device, &desc, &subres_data);
+            m_vertex_buffers[2] = m_uvs.Get();
+            m_strides[2] = DRAGON_MESH_FLOATS_PER_UV * sizeof(float);
+            m_offsets[2] = 0;
+        }
+
+        // NOTE: index buffer
+        {
+            D3D11_BUFFER_DESC desc{};
+            desc.ByteWidth = m_index_count * sizeof(uint32_t);
+            desc.Usage = D3D11_USAGE_IMMUTABLE;
+            desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+            desc.CPUAccessFlags = 0;
+            desc.MiscFlags = 0;
+            desc.StructureByteStride = 0;
+
+            D3D11_SUBRESOURCE_DATA subres_data{};
+            subres_data.pSysMem = indices;
             subres_data.SysMemPitch = 0;
             subres_data.SysMemSlicePitch = 0;
 

@@ -6,6 +6,7 @@
 #include <Dragon/TextureRef.h>
 
 #include <vector>
+#include <memory>
 
 namespace Dragon
 {
@@ -35,6 +36,7 @@ namespace Dragon
         void SetCamera(const Matrix& view, const Matrix& projection);
         void SetLighting(Vector3 ambient_color, Vector3 light_direction, Vector3 light_color);
         void Render(RenderCfg& cfg);
+        void RenderAABB(Vector3 p_min, Vector3 p_max, Vector3 color);
     public:
         void SetAnisotropy(unsigned anisotropy);
         size_t GetAnisotropyIndex() { return 0; }
@@ -51,5 +53,6 @@ namespace Dragon
         wrl::ComPtr<ID3D11Buffer> m_cb_object;
         wrl::ComPtr<ID3D11Buffer> m_cb_lighting;
         std::vector<ID3D11Buffer*> m_constant_buffers;
+        std::unique_ptr<Mesh> m_aabb_mesh; // TODO: should we make Mesh movable and/or copiable?
     };
 }
