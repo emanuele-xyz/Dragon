@@ -19,15 +19,15 @@ float4 main(VSOutput input) : SV_TARGET
     float4 out_color;
     if (cb_object.is_lit)
     {
-        float3 ambient = cb_lighting.ambient_color;
-        float3 directional;
+        float k_ambient = cb_lighting.ambient_strength;
+        float k_directional = 0;
         {
             float3 normal = normalize(input.normal);
             float3 light_direction = normalize(cb_lighting.light_direction);
-            float k = max(0.0, dot(normal, -light_direction));
-            directional = k * cb_lighting.light_color;
+            k_directional = max(0.0, dot(normal, -light_direction));
         }
-        out_color = float4(ambient + directional, 1.0) * albedo;
+        // NOTE: Instead of doing k_ambient + k_directional, we take the maximum value between the two
+        out_color = max(k_ambient, k_directional) * float4(cb_lighting.light_color, 1) * albedo;
     }
     else
     {

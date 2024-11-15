@@ -34,7 +34,7 @@ namespace Dragon
     public:
         void NewFrame(ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, float w, float h);
         void SetCamera(const Matrix& view, const Matrix& projection);
-        void SetLighting(Vector3 ambient_color, Vector3 light_direction, Vector3 light_color);
+        void SetLighting(float ambient_strength, Vector3 light_direction, Vector3 light_color);
         void Render(RenderCfg& cfg);
         void RenderAABB(Vector3 p_min, Vector3 p_max, Vector3 color);
     public:

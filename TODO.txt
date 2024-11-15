@@ -1,5 +1,6 @@
-[ ] When fragment gets a lot of directional lighting, with high ambient it looks a bit too much saturated
-[ ] Maybe merge lit and unlit shaders? (Just use an object constant flag is_lit for example)
+[x] When fragment gets a lot of directional lighting, with high ambient it looks a bit too much saturated
+[x] Maybe merge lit and unlit shaders? (Just use an object constant flag is_lit for example)
+[x] Experiment with new shading model
 
 [ ] (M) Support soldier picking and moving
 [ ] Ray-AABB intersection

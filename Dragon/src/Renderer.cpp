@@ -190,13 +190,13 @@ namespace Dragon
         constants->projection = projection;
     }
 
-    void Renderer::SetLighting(Vector3 ambient_color, Vector3 light_direction, Vector3 light_color)
+    void Renderer::SetLighting(float ambient_strength, Vector3 light_direction, Vector3 light_color)
     {
         D3D11Utils::SubresourceMapping subres_mapping{ m_context, m_cb_lighting.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0 };
         auto constants{ static_cast<CBLighting*>(subres_mapping.GetSubresource().pData) };
-        constants->ambient_color = { ambient_color.x, ambient_color.y, ambient_color.z, 1.0f };
-        constants->light_color = { light_color.x, light_color.y, light_color.z, 1.0f };
+        constants->ambient_strength = ambient_strength;
         constants->light_direction = { light_direction.x, light_direction.y, light_direction.z, 0.0f };
+        constants->light_color = { light_color.x, light_color.y, light_color.z, 1.0f };
     }
 
     void Renderer::Render(RenderCfg& cfg)

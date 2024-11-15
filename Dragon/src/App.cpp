@@ -56,7 +56,7 @@ namespace Dragon
 
     struct CLighting
     {
-        Vector3 ambient_color{ 0.1f, 0.1f, 0.1f }; // TODO: why this default?
+        float ambient_strength{ 0.1f };
         Vector3 light_color{ Vector3::One };
         Vector3 light_direction{ Vector3::Down };
         Vector3 light_rotation{};
@@ -297,7 +297,7 @@ namespace Dragon
                     conj.Conjugate();
                     Quaternion p{ lighting.light_direction, 0 };
                     auto rotated_p{ conj * p * quat };
-                    m_renderer.SetLighting(lighting.ambient_color, { rotated_p.x, rotated_p.y, rotated_p.z }, lighting.light_color);
+                    m_renderer.SetLighting(lighting.ambient_strength, { rotated_p.x, rotated_p.y, rotated_p.z }, lighting.light_color);
                 }
 
                 // NOTE: render
@@ -369,7 +369,7 @@ namespace Dragon
                 ImGui::Begin("Light Settings");
                 {
                     auto& lighting{ m_registry.get<CLighting>(m_registry.view<CLighting>().front()) };
-                    ImGuiEx::ColorPicker3("Ambient Color", lighting.ambient_color);
+                    ImGui::DragFloat("Ambient Strength", &lighting.ambient_strength, 0.01f, 0.0f, 1.0f);
                     ImGuiEx::ColorPicker3("Light Color", lighting.light_color);
                     ImGuiEx::DragFloat3("Light Rotation", lighting.light_rotation, 0.01f);
                 }
