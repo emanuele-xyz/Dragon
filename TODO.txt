@@ -18,3 +18,8 @@
 [ ] (S) Build resource importer (texture, mesh, audio ...)
 [ ] (S) Build entity editor
 [ ] (S) Build terrain editor
+
+[x] Update readme
+[ ] Make repo public
+
+[ ] Finish sorting out DragonDebug and DragonRelease property sheets <-- IMPORTANT

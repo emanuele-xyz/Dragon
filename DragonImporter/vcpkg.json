@@ -1,0 +1,10 @@
+{
+    "dependencies": [
+        {
+            "name": "assimp"
+        },
+        {
+            "name": "directxtex"
+        }
+    ]
+}

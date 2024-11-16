@@ -169,6 +169,7 @@
     <None Include="hlsl\include\Dragon\VSInput.hlsli" />
     <None Include="hlsl\include\Dragon\VSOutput.hlsli" />
     <None Include="hlsl\include\Dragon\CBBindings.hlsli" />
+    <None Include="vcpkg.json" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\src\DefaultVS.hlsl" />
