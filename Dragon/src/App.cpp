@@ -72,7 +72,7 @@ namespace Dragon
         Vector3 target{};
     };
 
-    void SysCameraRun(entt::registry& registry, const Keys& keys, const Curosr& cursor, float dt, float aspect)
+    void SysCamera(entt::registry& registry, const Keys& keys, const Curosr& cursor, float dt, float aspect)
     {
         auto view{ registry.view<CTransform, CCamera>() };
         auto e{ view.front() };
@@ -138,7 +138,7 @@ namespace Dragon
         camera.projection = Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(camera.fov_deg), aspect, camera.z_near, camera.z_far);
     }
 
-    void SysTargetPickingRun(entt::registry& registry, const Keys& keys, const Curosr& cursor, float view_w, float view_h)
+    void SysPickTarget(entt::registry& registry, const Keys& keys, const Curosr& cursor, float view_w, float view_h)
     {
         if (keys.key[VK_LBUTTON])
         {
@@ -161,8 +161,9 @@ namespace Dragon
         }
     }
 
-    void SysTargetFollowRun(entt::registry& registry, float dt)
+    void SysFollowTarget(entt::registry& registry, float dt)
     {
+        // TODO: not a good idea. Possible heap allocation every frame.
         std::vector<entt::entity> remove_target_from{};
 
         auto view{ registry.view<CTransform, CTarget, CSoldier>() };
@@ -271,9 +272,9 @@ namespace Dragon
             auto [client_w, client_h] { m_window.GetClientDimensionsFloat() };
             float aspect{ client_w / client_h };
 
-            SysCameraRun(m_registry, m_input.GetKeys(), m_input.GetCursor(), m_context.last_frame_dt_sec, aspect);
-            SysTargetPickingRun(m_registry, m_input.GetKeys(), m_input.GetCursor(), client_w, client_h);
-            SysTargetFollowRun(m_registry, m_context.last_frame_dt_sec);
+            SysCamera(m_registry, m_input.GetKeys(), m_input.GetCursor(), m_context.last_frame_dt_sec, aspect);
+            SysPickTarget(m_registry, m_input.GetKeys(), m_input.GetCursor(), client_w, client_h);
+            SysFollowTarget(m_registry, m_context.last_frame_dt_sec);
 
             // NOTE: render
             {
@@ -341,12 +342,35 @@ namespace Dragon
                 }
 
                 // TODO: to be removed
+                // NOTE: render AABB
                 {
                     Vector3 p_min{ 1.0f, 2.0f, 5.0f };
                     Vector3 p_max{ p_min + Vector3{4.0f, 2.0f, 1.0f} };
 
+                    auto keys{ m_input.GetKeys() };
+                    auto cursor{ m_input.GetCursor() };
+
+                    // NOTE: intersect mouse ray with AABB
+                    MathUtils::RayAABBIntersection intersection{};
+                    if (keys.key[VK_LBUTTON])
+                    {
+                        Vector3 ray_dir{};
+                        Vector3 ray_origin{};
+                        {
+                            auto view{ m_registry.view<CTransform, CCamera>() };
+                            auto e{ view.front() };
+                            auto& transform{ m_registry.get<CTransform>(e) };
+                            auto& camera{ m_registry.get<CCamera>(e) };
+
+                            Viewport v{ 0.0f, 0.0f, client_w, client_h };
+                            ray_origin = transform.position;
+                            ray_dir = MathUtils::GetRayFromMouse(cursor.x, cursor.y, v, camera.view, camera.projection);
+                        }
+                        intersection = MathUtils::IntersectRayAABB(ray_origin, ray_dir, p_min, p_max);
+                    }
+
                     RenderCfg cfg{};
-                    cfg.scaling = Vector3::One * 0.1f;
+                    cfg.scaling = Vector3::One * 0.2f;
                     cfg.mesh = icosphere_ref;
                     cfg.is_lit = false;
                     cfg.blend_factor = 1.0f;
@@ -358,6 +382,17 @@ namespace Dragon
                     cfg.position = p_max;
                     cfg.color = { 0.0f, 1.0f, 0.0f };
                     m_renderer.Render(cfg);
+
+                    if (intersection.does_intersect)
+                    {
+                        cfg.position = intersection.p_far;
+                        cfg.color = { 1.0f, 1.0f, 0.0f };
+                        m_renderer.Render(cfg);
+
+                        cfg.position = intersection.p_close;
+                        cfg.color = { 1.0f, 1.0f, 0.0f };
+                        m_renderer.Render(cfg);
+                    }
 
                     m_renderer.RenderAABB(p_min, p_max, Vector3::One); // TODO: to be removed
                 }

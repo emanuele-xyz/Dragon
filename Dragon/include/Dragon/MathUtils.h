@@ -21,4 +21,12 @@ namespace Dragon::MathUtils
         n: plane normal
     */
     Vector3 IntersectRayPlane(Vector3 r, Vector3 d, Vector3 p, Vector3 n);
+
+    struct RayAABBIntersection
+    {
+        bool does_intersect;
+        Vector3 p_close;
+        Vector3 p_far;
+    };
+    RayAABBIntersection IntersectRayAABB(Vector3 ray_origin, Vector3 ray_dir, Vector3 p_min, Vector3 p_max);
 }
