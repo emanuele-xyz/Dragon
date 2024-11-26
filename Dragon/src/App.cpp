@@ -15,11 +15,11 @@ namespace Dragon
         , m_scheduler{}
         , m_window_class{ "dragon_window_class" }
         , m_window{ m_window_class.GetName(), "Dragon", 1280, 720, WS_OVERLAPPEDWINDOW } // TODO: hardcoded
-        , m_input{}
         , m_gfx_device{}
         , m_gfx_settings{ m_gfx_device.GetDevice() }
         , m_swap_chain{ m_gfx_device.GetDevice(), m_gfx_device.GetContext(), m_window.GetRawHandle(), m_gfx_settings.msaa_samples[m_gfx_settings.msaa_index] }
         , m_imgui{ m_window.GetRawHandle(), m_gfx_device.GetDevice(), m_gfx_device.GetContext() }
+        , m_input{ m_window.GetRawHandle() }
         , m_renderer{ m_gfx_device.GetDevice(), m_gfx_device.GetContext() }
         , m_mesh_mgr{ m_gfx_device.GetDevice() }
         , m_texture_mgr{ m_gfx_device.GetDevice() }
@@ -72,7 +72,7 @@ namespace Dragon
         Vector3 target{};
     };
 
-    void SysCameraRun(entt::registry& registry, const KeyboardState& keyboard, const MouseState& mouse, float dt, float aspect)
+    void SysCameraRun(entt::registry& registry, const Keys& keys, const Curosr& cursor, float dt, float aspect)
     {
         auto view{ registry.view<CTransform, CCamera>() };
         auto e{ view.front() };
@@ -85,19 +85,19 @@ namespace Dragon
             Vector3 right{ forward.Cross(Vector3::Up) };
 
             Vector3 move{};
-            if (keyboard.key['W'])
+            if (keys.key['W'])
             {
                 move = forward * dt;
             }
-            if (keyboard.key['S'])
+            if (keys.key['S'])
             {
                 move = -forward * dt;
             }
-            if (keyboard.key['A'])
+            if (keys.key['A'])
             {
                 move = -right * dt;
             }
-            if (keyboard.key['D'])
+            if (keys.key['D'])
             {
                 move = right * dt;
             }
@@ -109,11 +109,11 @@ namespace Dragon
         // NOTE: rotate around target
         {
             float theta{};
-            if (keyboard.key['Q'])
+            if (keys.key['Q'])
             {
                 theta = -dt;
             }
-            if (keyboard.key['E'])
+            if (keys.key['E'])
             {
                 theta = +dt;
             }
@@ -126,9 +126,9 @@ namespace Dragon
         }
 
         // NOTE: vertical movement
-        if (mouse.wheel)
+        if (cursor.wheel)
         {
-            Vector3 move{ 0.0f, mouse.wheel > 0 ? +1.0f : -1.0f, 0.0f };
+            Vector3 move{ 0.0f, cursor.wheel > 0 ? +1.0f : -1.0f, 0.0f };
             transform.position += move;
             camera.target += move;
         }
@@ -138,9 +138,9 @@ namespace Dragon
         camera.projection = Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(camera.fov_deg), aspect, camera.z_near, camera.z_far);
     }
 
-    void SysTargetPickingRun(entt::registry& registry, const MouseState& mouse, float view_w, float view_h)
+    void SysTargetPickingRun(entt::registry& registry, const Keys& keys, const Curosr& cursor, float view_w, float view_h)
     {
-        if (mouse.left)
+        if (keys.key[VK_LBUTTON])
         {
             Vector3 ray_dir{};
             Vector3 ray_origin{};
@@ -152,7 +152,7 @@ namespace Dragon
 
                 Viewport v{ 0.0f, 0.0f, view_w, view_h };
                 ray_origin = transform.position;
-                ray_dir = MathUtils::GetRayFromMouse(mouse.x, mouse.y, v, camera.view, camera.projection);
+                ray_dir = MathUtils::GetRayFromMouse(cursor.x, cursor.y, v, camera.view, camera.projection);
             }
 
             auto e{ registry.view<CSoldier>().front() };
@@ -271,8 +271,8 @@ namespace Dragon
             auto [client_w, client_h] { m_window.GetClientDimensionsFloat() };
             float aspect{ client_w / client_h };
 
-            SysCameraRun(m_registry, m_input.GetKeyboard(), m_input.GetMouse(), m_context.last_frame_dt_sec, aspect);
-            SysTargetPickingRun(m_registry, m_input.GetMouse(), client_w, client_h);
+            SysCameraRun(m_registry, m_input.GetKeys(), m_input.GetCursor(), m_context.last_frame_dt_sec, aspect);
+            SysTargetPickingRun(m_registry, m_input.GetKeys(), m_input.GetCursor(), client_w, client_h);
             SysTargetFollowRun(m_registry, m_context.last_frame_dt_sec);
 
             // NOTE: render
@@ -422,19 +422,19 @@ namespace Dragon
                 }
                 ImGui::End();
 
-                ImGui::Begin("Mouse");
+                ImGui::Begin("Cursor");
                 {
-                    const auto& mouse{ m_input.GetMouse() };
-                    ImGui::Text("Wheel: %d", mouse.wheel);
-                    ImGui::Text("Position: (%d,%d)", mouse.x, mouse.y);
-                    ImGui::Text("LMR: %d%d%d", mouse.left, mouse.middle, mouse.right);
+                    const auto& cursor{ m_input.GetCursor() };
+                    ImGui::Text("Wheel: %d", cursor.wheel);
+                    ImGui::Text("Position: (%d,%d)", cursor.x, cursor.y);
                 }
                 ImGui::End();
 
-                ImGui::Begin("Keyboard");
+                ImGui::Begin("Keys");
                 {
-                    const auto& keyboard{ m_input.GetKeyboard() };
-                    ImGui::Text("WASD: %d%d%d%d", keyboard.key['W'], keyboard.key['A'], keyboard.key['S'], keyboard.key['D']);
+                    const auto& keys{ m_input.GetKeys() };
+                    ImGui::Text("WASD: %d%d%d%d", keys.key['W'], keys.key['A'], keys.key['S'], keys.key['D']);
+                    ImGui::Text("LMR: %d%d%d", keys.key[VK_LBUTTON], keys.key[VK_MBUTTON], keys.key[VK_RBUTTON]);
                 }
                 ImGui::End();
             }

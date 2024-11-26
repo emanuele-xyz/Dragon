@@ -6,34 +6,28 @@
 
 namespace Dragon
 {
-    struct KeyboardState
+    struct Keys
     {
         bool key[0xFF];
     };
 
-    struct MouseState
+    struct Curosr
     {
         int wheel;
         int x;
         int y;
-        // TODO: add delta
-        bool left;
-        bool middle;
-        bool right;
-        // TODO: make buttons array + enum
-        // TODO: make buttons action type array with enums nothing, press, release, hold DRAGON_ACTION_NONE, DRAGON_ACTION_PRESS, DRAGON_ACTION_RELEASE, DRAGON_ACTION_HOLD 
     };
 
     struct InputState
     {
-        KeyboardState keyboard;
-        MouseState mouse;
+        Keys keys;
+        Curosr cursor;
     };
 
     class Input
     {
     public:
-        Input() : m_state_idx{}, m_states{} {}
+        Input(HWND hwnd) : m_hwnd{hwnd}, m_state_idx {}, m_states{} {}
         ~Input() = default;
         Input(const Input&) = delete;
         Input(Input&&) noexcept = delete;
@@ -41,9 +35,10 @@ namespace Dragon
         Input& operator=(Input&&) noexcept = delete;
     public:
         void Update(std::span<const MSG> messages);
-        const KeyboardState& GetKeyboard() const { return m_states[m_state_idx].keyboard; }
-        const MouseState& GetMouse() const { return m_states[m_state_idx].mouse; }
+        const Keys& GetKeys() const { return m_states[m_state_idx].keys; }
+        const Curosr& GetCursor() const { return m_states[m_state_idx].cursor; }
     private:
+        HWND m_hwnd;
         int m_state_idx;
         InputState m_states[2];
     };

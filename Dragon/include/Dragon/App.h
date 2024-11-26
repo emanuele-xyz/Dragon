@@ -32,11 +32,11 @@ namespace Dragon
         Scheduler m_scheduler;
         Win32Utils::WindowClass m_window_class;
         Win32Utils::WindowHandle m_window;
-        Input m_input;
         GfxDevice m_gfx_device;
         GfxSettings m_gfx_settings;
         SwapChain m_swap_chain;
         ImGuiHandle m_imgui;
+        Input m_input;
         Renderer m_renderer;
         MeshMgr m_mesh_mgr;
         TextureMgr m_texture_mgr;
