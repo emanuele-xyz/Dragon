@@ -11,6 +11,7 @@
 [x] Merge lit and unlit pixel shaders
 
 [x] I have discovered some strange bug where the input gets stuck. I dunno why. Maybe ImGui capture and mouse state tracking?
+[ ] (bug) When clicking mouse on ImGui window, the click is also registered by the game
 
 [ ] Integrate texture and mesh management with ECS. Make it so that resources are loaded based on what components are attached to entities inside the scene. There is an initial pass that loads the referenced resources in bulk (async). Then, at each iteration, we check whether appropriately for new resources to be loaded (async).
 
