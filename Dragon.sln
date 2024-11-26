@@ -5,8 +5,6 @@ VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Dragon", "Dragon\Dragon.vcxproj", "{ECD569BB-38BD-4F1B-829C-65CB519FB7E5}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DragonImporter", "DragonImporter\DragonImporter.vcxproj", "{6D5882C2-E834-42BC-8D9C-D24ECB7AD479}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -17,10 +15,6 @@ Global
 		{ECD569BB-38BD-4F1B-829C-65CB519FB7E5}.Debug|x64.Build.0 = Debug|x64
 		{ECD569BB-38BD-4F1B-829C-65CB519FB7E5}.Release|x64.ActiveCfg = Release|x64
 		{ECD569BB-38BD-4F1B-829C-65CB519FB7E5}.Release|x64.Build.0 = Release|x64
-		{6D5882C2-E834-42BC-8D9C-D24ECB7AD479}.Debug|x64.ActiveCfg = Debug|x64
-		{6D5882C2-E834-42BC-8D9C-D24ECB7AD479}.Debug|x64.Build.0 = Debug|x64
-		{6D5882C2-E834-42BC-8D9C-D24ECB7AD479}.Release|x64.ActiveCfg = Release|x64
-		{6D5882C2-E834-42BC-8D9C-D24ECB7AD479}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
