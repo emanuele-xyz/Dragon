@@ -72,7 +72,7 @@ namespace Dragon
         Vector3 target{};
     };
 
-    void SysCamera(entt::registry& registry, const Keys& keys, const Curosr& cursor, float dt, float aspect)
+    void SysCamera(entt::registry& registry, const Keyboard& keyboard, const Mouse& mouse, float dt, float aspect)
     {
         auto view{ registry.view<CTransform, CCamera>() };
         auto e{ view.front() };
@@ -85,19 +85,19 @@ namespace Dragon
             Vector3 right{ forward.Cross(Vector3::Up) };
 
             Vector3 move{};
-            if (keys.key['W'])
+            if (keyboard.Get(Key::W))
             {
                 move = forward * dt;
             }
-            if (keys.key['S'])
+            if (keyboard.Get(Key::S))
             {
                 move = -forward * dt;
             }
-            if (keys.key['A'])
+            if (keyboard.Get(Key::A))
             {
                 move = -right * dt;
             }
-            if (keys.key['D'])
+            if (keyboard.Get(Key::D))
             {
                 move = right * dt;
             }
@@ -109,11 +109,11 @@ namespace Dragon
         // NOTE: rotate around target
         {
             float theta{};
-            if (keys.key['Q'])
+            if (keyboard.Get(Key::Q))
             {
                 theta = -dt;
             }
-            if (keys.key['E'])
+            if (keyboard.Get(Key::E))
             {
                 theta = +dt;
             }
@@ -126,9 +126,9 @@ namespace Dragon
         }
 
         // NOTE: vertical movement
-        if (cursor.wheel)
+        if (mouse.wheel)
         {
-            Vector3 move{ 0.0f, cursor.wheel > 0 ? +1.0f : -1.0f, 0.0f };
+            Vector3 move{ 0.0f, mouse.wheel > 0 ? +1.0f : -1.0f, 0.0f };
             transform.position += move;
             camera.target += move;
         }
@@ -138,9 +138,9 @@ namespace Dragon
         camera.projection = Matrix::CreatePerspectiveFieldOfView(DirectX::XMConvertToRadians(camera.fov_deg), aspect, camera.z_near, camera.z_far);
     }
 
-    void SysPickTarget(entt::registry& registry, const Keys& keys, const Curosr& cursor, float view_w, float view_h)
+    void SysPickTarget(entt::registry& registry, const Mouse& mouse, float view_w, float view_h)
     {
-        if (keys.key[VK_LBUTTON])
+        if (mouse.Get(Button::Left))
         {
             Vector3 ray_dir{};
             Vector3 ray_origin{};
@@ -152,7 +152,7 @@ namespace Dragon
 
                 Viewport v{ 0.0f, 0.0f, view_w, view_h };
                 ray_origin = transform.position;
-                ray_dir = MathUtils::GetRayFromMouse(cursor.x, cursor.y, v, camera.view, camera.projection);
+                ray_dir = MathUtils::GetRayFromMouse(mouse.x, mouse.y, v, camera.view, camera.projection);
             }
 
             auto e{ registry.view<CSoldier>().front() };
@@ -272,8 +272,8 @@ namespace Dragon
             auto [client_w, client_h] { m_window.GetClientDimensionsFloat() };
             float aspect{ client_w / client_h };
 
-            SysCamera(m_registry, m_input.GetKeys(), m_input.GetCursor(), m_context.last_frame_dt_sec, aspect);
-            SysPickTarget(m_registry, m_input.GetKeys(), m_input.GetCursor(), client_w, client_h);
+            SysCamera(m_registry, m_input.GetKeyboard(), m_input.GetMouse(), m_context.last_frame_dt_sec, aspect);
+            SysPickTarget(m_registry, m_input.GetMouse(), client_w, client_h);
             SysFollowTarget(m_registry, m_context.last_frame_dt_sec);
 
             // NOTE: render
@@ -347,12 +347,11 @@ namespace Dragon
                     Vector3 p_min{ 1.0f, 2.0f, 5.0f };
                     Vector3 p_max{ p_min + Vector3{4.0f, 2.0f, 1.0f} };
 
-                    auto keys{ m_input.GetKeys() };
-                    auto cursor{ m_input.GetCursor() };
+                    const auto& mouse{ m_input.GetMouse() };
 
                     // NOTE: intersect mouse ray with AABB
                     MathUtils::RayAABBIntersection intersection{};
-                    if (keys.key[VK_LBUTTON])
+                    if (mouse.Get(Button::Left))
                     {
                         Vector3 ray_dir{};
                         Vector3 ray_origin{};
@@ -364,7 +363,7 @@ namespace Dragon
 
                             Viewport v{ 0.0f, 0.0f, client_w, client_h };
                             ray_origin = transform.position;
-                            ray_dir = MathUtils::GetRayFromMouse(cursor.x, cursor.y, v, camera.view, camera.projection);
+                            ray_dir = MathUtils::GetRayFromMouse(mouse.x, mouse.y, v, camera.view, camera.projection);
                         }
                         intersection = MathUtils::IntersectRayAABB(ray_origin, ray_dir, p_min, p_max);
                     }
@@ -457,19 +456,19 @@ namespace Dragon
                 }
                 ImGui::End();
 
-                ImGui::Begin("Cursor");
+                ImGui::Begin("Mouse");
                 {
-                    const auto& cursor{ m_input.GetCursor() };
-                    ImGui::Text("Wheel: %d", cursor.wheel);
-                    ImGui::Text("Position: (%d,%d)", cursor.x, cursor.y);
+                    const auto& mouse{ m_input.GetMouse() };
+                    ImGui::Text("Wheel: %d", mouse.wheel);
+                    ImGui::Text("Position: (%d,%d)", mouse.x, mouse.y);
+                    ImGui::Text("LMR: %d%d%d", mouse.Get(Button::Left), mouse.Get(Button::Middle), mouse.Get(Button::Right));
                 }
                 ImGui::End();
 
-                ImGui::Begin("Keys");
+                ImGui::Begin("Keyboard");
                 {
-                    const auto& keys{ m_input.GetKeys() };
-                    ImGui::Text("WASD: %d%d%d%d", keys.key['W'], keys.key['A'], keys.key['S'], keys.key['D']);
-                    ImGui::Text("LMR: %d%d%d", keys.key[VK_LBUTTON], keys.key[VK_MBUTTON], keys.key[VK_RBUTTON]);
+                    const auto& keyboard{ m_input.GetKeyboard() };
+                    ImGui::Text("WASD: %d%d%d%d", keyboard.Get(Key::W), keyboard.Get(Key::A), keyboard.Get(Key::S), keyboard.Get(Key::D));
                 }
                 ImGui::End();
             }
