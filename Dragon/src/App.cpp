@@ -34,9 +34,19 @@ namespace Dragon
         Vector3 scale{ Vector3::One };
     };
 
+    struct CMeshDesc
+    {
+        std::string name;
+    };
+
     struct CMesh
     {
         MeshRef mesh{};
+    };
+
+    struct CTextureDesc
+    {
+        std::string name;
     };
 
     struct CTexture
