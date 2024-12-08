@@ -36,7 +36,7 @@ namespace Dragon
 
     struct CMeshDesc
     {
-        std::string name;
+        std::string name{};
     };
 
     struct CMesh
@@ -46,7 +46,7 @@ namespace Dragon
 
     struct CTextureDesc
     {
-        std::string name;
+        std::string name{};
     };
 
     struct CTexture
@@ -200,19 +200,19 @@ namespace Dragon
 
     void App::Run()
     {
-        auto cube_ref{ m_mesh_mgr.Load("meshes/cube.obj") };
-        auto plane_ref{ m_mesh_mgr.Load("meshes/plane.obj") };
-        auto capsule_ref{ m_mesh_mgr.Load("meshes/capsule.obj") };
+        //auto cube_ref{ m_mesh_mgr.Load("meshes/cube.obj") };
+        //auto plane_ref{ m_mesh_mgr.Load("meshes/plane.obj") };
+        //auto capsule_ref{ m_mesh_mgr.Load("meshes/capsule.obj") };
         auto light_direction_ref{ m_mesh_mgr.Load("meshes/light_direction.obj") };
         auto icosphere_ref{ m_mesh_mgr.Load("meshes/icosphere.obj") };
-        auto soldier_ref{ m_mesh_mgr.Load("meshes/proto_soldier.obj") };
+        //auto soldier_ref{ m_mesh_mgr.Load("meshes/proto_soldier.obj") };
 
-        auto lena_ref{ m_texture_mgr.Load("textures/lena.png") };
-        auto proto_floor_ref{ m_texture_mgr.Load("textures/proto_floor.png") };
-        auto paving_stones_ref{ m_texture_mgr.Load("textures/paving_stones.png") };
-        auto solder_albedo_ref{ m_texture_mgr.Load("textures/proto_soldier.png") };
-        auto red_ref{ m_texture_mgr.Load("textures/red.png") };
-        auto blue_ref{ m_texture_mgr.Load("textures/blue.png") };
+        //auto lena_ref{ m_texture_mgr.Load("textures/lena.png") };
+        //auto proto_floor_ref{ m_texture_mgr.Load("textures/proto_floor.png") };
+        //auto paving_stones_ref{ m_texture_mgr.Load("textures/paving_stones.png") };
+        //auto solder_albedo_ref{ m_texture_mgr.Load("textures/proto_soldier.png") };
+        //auto red_ref{ m_texture_mgr.Load("textures/red.png") };
+        //auto blue_ref{ m_texture_mgr.Load("textures/blue.png") };
 
         // NOTE: create camera
         {
@@ -228,10 +228,10 @@ namespace Dragon
             auto e{ m_registry.create() };
             auto& transform{ m_registry.emplace<CTransform>(e) };
             transform.scale = Vector3::One * 10.0f;
-            auto& m{ m_registry.emplace<CMesh>(e) };
-            m.mesh = plane_ref;
-            auto& t{ m_registry.emplace<CTexture>(e) };
-            t.texture = proto_floor_ref;
+            auto& m{ m_registry.emplace<CMeshDesc>(e) };
+            m.name = "plane.obj";
+            auto& t{ m_registry.emplace<CTextureDesc>(e) };
+            t.name = "proto_floor.png";
         }
 
         // NOTE: create soldier
@@ -240,16 +240,40 @@ namespace Dragon
             auto& transform{ m_registry.emplace<CTransform>(e) };
             transform.position = { 0.0f, 1.0f, 0.0f };
             m_registry.emplace<CSoldier>(e);
-            auto& m{ m_registry.emplace<CMesh>(e) };
-            m.mesh = soldier_ref;
-            auto& t{ m_registry.emplace<CTexture>(e) };
-            t.texture = solder_albedo_ref;
+            auto& m{ m_registry.emplace<CMeshDesc>(e) };
+            m.name = "proto_soldier.obj";
+            auto& t{ m_registry.emplace<CTextureDesc>(e) };
+            t.name = "proto_soldier.png";
         }
 
         // NOTE: create lighting
         {
             auto e{ m_registry.create() };
             m_registry.emplace<CLighting>(e);
+        }
+
+        // NOTE: load meshes at startup
+        {
+            auto view{ m_registry.view<CMeshDesc>() };
+            for (auto e : view)
+            {
+                const auto& desc{ m_registry.get<CMeshDesc>(e) };
+                auto ref{ m_mesh_mgr.Load(std::format("meshes/{}", desc.name)) }; // TODO: hardcoded meshes path
+                auto& mesh{ m_registry.emplace<CMesh>(e) };
+                mesh.mesh = ref;
+            }
+        }
+
+        // NOTE: load textures at startup
+        {
+            auto view{ m_registry.view<CTextureDesc>() };
+            for (auto e : view)
+            {
+                const auto& desc{ m_registry.get<CTextureDesc>(e) };
+                auto ref{ m_texture_mgr.Load(std::format("textures/{}", desc.name)) }; // TODO: hardcoded meshes path
+                auto& texture{ m_registry.emplace<CTexture>(e) };
+                texture.texture = ref;
+            }
         }
 
         while (m_context.is_running)
