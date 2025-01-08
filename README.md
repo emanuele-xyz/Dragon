@@ -12,8 +12,8 @@ Prerequisites:
 The build process:
 
 - Place the downloaded game assets inside a folder called `cwd` located at the solution's root directory.
-- Open Dreagon.sln.
-- Open the project's property pages > Debugging > set Working Directory to `$(SolutionDi)\cwd`.
+- Open `Dragon.sln`.
+- Open the project's property pages > go to Debugging > set Working Directory to `$(SolutionDi)\cwd`.
 
 ## Minimum Requirements
 
