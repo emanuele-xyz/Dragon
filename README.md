@@ -1,6 +1,6 @@
 # Dragon
 
-Game codename Dragon is a [RTT](https://en.wikipedia.org/wiki/Real-time_tactics) (Real Time Tactics) game inspired by the [Total War](https://en.wikipedia.org/wiki/Total_War_(video_game_series)) saga, with a focus on a more refined and in depth real time siege and open field battles.
+Sandbox for experimenting with graphics programming in general and [RTT](https://en.wikipedia.org/wiki/Real-time_tactics) style gameplay.
 
 ## Build
 
@@ -11,8 +11,9 @@ Prerequisites:
 
 The build process:
 
-- Place the game assets folder inside the project's root directory.
-- TODO
+- Place the downloaded game assets inside a folder called `cwd` located at the solution's root directory.
+- Open Dreagon.sln.
+- Open the project's property pages > Debugging > set Working Directory to `$(SolutionDi)\cwd`.
 
 ## Minimum Requirements
 
