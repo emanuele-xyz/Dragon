@@ -252,28 +252,35 @@ namespace Dragon
             m_registry.emplace<CLighting>(e);
         }
 
-        // NOTE: load meshes at startup
         {
-            auto view{ m_registry.view<CMeshDesc>() };
-            for (auto e : view)
-            {
-                const auto& desc{ m_registry.get<CMeshDesc>(e) };
-                auto ref{ m_mesh_mgr.Load(std::format("meshes/{}", desc.name)) }; // TODO: hardcoded meshes path
-                auto& mesh{ m_registry.emplace<CMesh>(e) };
-                mesh.mesh = ref;
-            }
-        }
+            auto t0{ Win32Utils::GetPerformanceCounter() };
 
-        // NOTE: load textures at startup
-        {
-            auto view{ m_registry.view<CTextureDesc>() };
-            for (auto e : view)
+            // NOTE: load meshes at startup
             {
-                const auto& desc{ m_registry.get<CTextureDesc>(e) };
-                auto ref{ m_texture_mgr.Load(std::format("textures/{}", desc.name)) }; // TODO: hardcoded meshes path
-                auto& texture{ m_registry.emplace<CTexture>(e) };
-                texture.texture = ref;
+                auto view{ m_registry.view<CMeshDesc>() };
+                for (auto e : view)
+                {
+                    const auto& desc{ m_registry.get<CMeshDesc>(e) };
+                    auto ref{ m_mesh_mgr.Load(std::format("meshes/{}", desc.name)) }; // TODO: hardcoded meshes path
+                    auto& mesh{ m_registry.emplace<CMesh>(e) };
+                    mesh.mesh = ref;
+                }
             }
+            // NOTE: load textures at startup
+            {
+                auto view{ m_registry.view<CTextureDesc>() };
+                for (auto e : view)
+                {
+                    const auto& desc{ m_registry.get<CTextureDesc>(e) };
+                    auto ref{ m_texture_mgr.Load(std::format("textures/{}", desc.name)) }; // TODO: hardcoded meshes path
+                    auto& texture{ m_registry.emplace<CTexture>(e) };
+                    texture.texture = ref;
+                }
+            }
+
+            auto t1{ Win32Utils::GetPerformanceCounter() };
+            auto load_time_sec{ Win32Utils::GetElapsedSec(t0, t1) };
+            m_context.assets_load_time_sec = load_time_sec;
         }
 
         while (m_context.is_running)
@@ -487,6 +494,7 @@ namespace Dragon
                     ImGui::Text("Last frame dt (sec): %.6f", m_context.last_frame_dt_sec);
                     ImGui::Text("Last frame dt (msec): %.3f", m_context.last_frame_dt_msec);
                     ImGui::Text("Last FPS: %.1f", m_context.last_fps);
+                    ImGui::Text("Assets load time (sec): %.6f", m_context.assets_load_time_sec);
                 }
                 ImGui::End();
 

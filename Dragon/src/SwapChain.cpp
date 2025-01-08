@@ -98,4 +98,4 @@ namespace Dragon
         auto depth_buffer{ D3D11Utils::CreateTexture2D(m_device, &buffer_desc) };
         m_dsv = D3D11Utils::CreateDSV(m_device, depth_buffer.Get());
     }
-        }
+}

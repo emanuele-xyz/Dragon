@@ -12,5 +12,6 @@ namespace Dragon
         float last_frame_dt_sec{}; // TODO: rename to dt_sec
         float last_frame_dt_msec{}; // TODO: rename to dt_msec
         float last_fps{}; // TODO: rename to fps
+        float assets_load_time_sec{};
     };
 }
